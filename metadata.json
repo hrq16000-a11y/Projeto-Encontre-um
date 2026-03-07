@@ -1,0 +1,7 @@
+{
+  "name": "Encontre Um - Guia Comercial e Marketplace",
+  "description": "Plataforma brasileira de guia comercial, marketplace de serviços e anúncios, conectando clientes a empresas e profissionais com foco em SEO e conversão.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
