@@ -25,7 +25,7 @@ export default async function handler(req,res) {
   try{
     const item=await load('pending',id);
     if(!item)return respond(res,404,{erro:'Cadastro não encontrado.'});
-    if(acao==='aprovar')await save('approved',id,{...publicFields(item),status:'approved',aprovadoEm:new Date().toISOString()},true);
+    if(acao==='aprovar')await save('approved',id,{...publicFields(item),status:'approved',chaveHash:item.chaveHash,aprovadoEm:new Date().toISOString()},true);
     await remove('pending',id);
     return respond(res,200,{sucesso:true,acao,id});
   }catch{return respond(res,503,{erro:'Não foi possível concluir a operação.'});}
