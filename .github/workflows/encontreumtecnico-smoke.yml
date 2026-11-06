@@ -136,7 +136,7 @@ jobs:
           URL: https://encontreumtecnico-tanstack-ohx6pcom1-msolus.vercel.app
         run: |
           set -euo pipefail
-          for path in / /cadastro /galeria /cliente /clientes /atividades /acompanhar /meu-perfil /admin /tecnico/alan-nascimento /logo-original.webp /favicon-original.webp /api/health; do
+          for path in / /cadastro /galeria /cliente /clientes /atividades /acompanhar /meu-perfil /admin /tecnico/alan-nascimento /illustrations/hero-tech.svg /logo-original.webp /favicon-original.webp /api/health; do
             code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/live-page -w '%{http_code}' "$URL$path")
             echo "TanStack Vercel $path HTTP $code"
             test "$code" = 200 || exit 1
@@ -152,4 +152,7 @@ jobs:
             echo "TanStack Production $path HTTP $code"
             test "$code" = 200 || exit 1
           done
+          code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/live-search -w '%{http_code}' "$URL/galeria?q=notebook&city=Curitiba")
+          echo "Live shared search query HTTP $code"
+          test "$code" = 200
           echo 'TanStack stable production alias: OK'

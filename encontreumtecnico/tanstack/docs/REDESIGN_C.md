@@ -39,3 +39,14 @@ Superar a legibilidade, facilidade de busca, confiança informativa e navegaçã
 - Nunca criar depoimentos, avaliações, preços, contagem de atendimento, bairro ou cidade fictícios.
 - Não bloquear cadastros ou links legados durante a reforma.
 - Progresso do redesign é diferente de progresso da migração de dados históricos.
+
+## Execução real da Opção C (06/11/2026)
+
+- Rodada 1 — **home + navegação móvel**: aplicada no TanStack. Busca por serviço e cidade no topo, CTA técnico/cliente, ícones vetoriais, ilustração original em `public/illustrations/hero-tech.svg`, seções como funciona, FAQ e rodapé. Feita sem imagens, avaliações ou contagens inventadas.
+- Rodada 2 — **galeria**: filtros por nome, serviço, cidade e UF, classificação e paginação visual; cards responsivos e identificação de informações de origem ainda não confirmadas.
+- Rodada 3 — **jornadas**: cadastro de técnico em três etapas, comprovante com protocolo/chave copiáveis, layout da área de cliente, solicitações aprovadas e perfil individual reformulados.
+- Rodada 4 — **qualidade/publicação**: TypeScript e SSR passaram no GitHub Actions; endpoint público está disponível pela Vercel. Validação HTTPS final do alias fixo e da nova imagem foi adicionada ao workflow.
+- Commit publicável revisado: `42965a2836297ac30f29d90ab26d762b76164f74` (CI GitHub Actions #42170616657 success).
+- Deploy Vercel existente do commit: `dpl_69J3Kk17vHxHHp3kurCPBv6pDCgS`, `READY`, publicado no alias fixo `https://encontreumtecnico-tanstack.vercel.app` por reatribuição do alias. **O deploy possui target preview (null), embora o alias seja público e fixo**; não alegar promoção de ambiente produção.
+- Não alterar `encontreumtecnico.com` (WordPress, DNS), indexação (continua `noindex`), contas antigas ou os preços sem fonte.
+- Próxima frente separada: MySQL e `wp-content/uploads`, autenticação Google e dados históricos. **Não equivalem ao redesign.**
