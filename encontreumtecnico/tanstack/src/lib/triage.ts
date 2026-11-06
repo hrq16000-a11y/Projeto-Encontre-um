@@ -47,6 +47,6 @@ export function triageText(v:Triage){
 export function whatsAppLink(phone:unknown,text:string){
  const normalized=String(phone||'').replace(/\D/g,'')
  if(!/^(?:55)?[1-9]\d9\d{8}$/.test(normalized))return null
- const number=normalized.startsWith('55')?normalized:'55'+normalized
+ const number=normalized.length===13&&normalized.startsWith('55')?normalized:'55'+normalized
  return 'https://wa.me/'+number+'?text='+encodeURIComponent(text)
 }
