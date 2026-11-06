@@ -28,6 +28,10 @@ jobs:
       - name: Unit tests
         working-directory: encontreumtecnico
         run: npm test
+      - name: Discover original logo source (read-only)
+        working-directory: encontreumtecnico
+        continue-on-error: true
+        run: node scripts/probe-brand.mjs
       - name: Read-only preview smoke (no fake registrations)
         env:
           URL: https://encontreumtecnico-migracao-msolus.vercel.app
