@@ -69,3 +69,17 @@ Não apagar contas, cadastros ou dados originais, não publicar perfis fictício
 - **A nova versão não substitui integralmente o WordPress.** Ainda não há Google OAuth, recuperação de chaves por e-mail, antispam robusto, nem banco transacional relacional para relações completas. O ambiente permanece `noindex` para não competir com o domínio original.
 - Administração nesta homologação utiliza `ADMIN_ACCESS_TOKEN` do ambiente Preview da Vercel; não exibir em código, logs ou respostas públicas. Para a passagem a produção, substituir por autenticação com contas e papéis e rotação de segredo.
 - Não alterar DNS nem publicar no domínio oficial até exportação/restauração e reconciliação de MySQL, upload de mídia, autenticação, SEO e jornadas.
+
+## TanStack Start SSR — 06/11/2026
+
+- **Projeto Vercel novo:** `encontreumtecnico-tanstack`, ID `prj_hR8sI1zUbXfLuL5fbI5U9iWk4IXx`, team `msolus`.
+- **Endereço fixo atribuído pela Vercel:** https://encontreumtecnico-tanstack.vercel.app/
+- **Deploy de produção TanStack READY:** `dpl_AGKy8NWsCaVDxZ4BrbpexsGPNYNo`, commit `7f2aeb77d491b2207fda0fdb64106595ad980c40`. Ambiente ainda **noindex, nofollow**.
+- **Arquitetura:** TanStack Start + React SSR + Nitro + Vite 8, rotas limpas sem .html, protótipo independente do Lovable/Supabase. Ainda não é 100% autossuficiente pois as APIs TanStack encaminham requisições ao projeto Vercel legado `encontreumtecnico-migracao`.
+- **Identidade:** logo e favicon reais extraídos do WordPress autorizado e versionados no GitHub dentro de ambos os projetos. Os arquivos estão agora locais à aplicação, sem dependência visual da URL original.
+- **Páginas React SSR:** `/`, `/galeria`, `/cadastro`, `/cliente`, `/clientes`, `/atividades`, `/admin`, `/meu-perfil`, `/acompanhar`, `/tecnico/:slug`. Todas renderizaram HTTP 200 em testes locais do GitHub e no deploy Vercel de prévia. O perfil `/tecnico/alan-nascimento` foi testado na prévia.
+- **Backend Vercel:** cadastros de técnicos/cliente, aprovação, perfis, solicitações, armazenamento Blob e acompanhamento validados por testes integrados com operações reais e dados de diagnóstico apagados. Não há alegação de login WordPress legado funcional.
+- **Galeria:** 356 URLs únicas de perfis antigos derivadas dos dois sitemaps públicos da origem. Não confundir com importação dos campos completos nem do banco MySQL.
+- **Histórico WordPress:** **0% dos registros privados importados e reconciliados** (sem SQL/arquivos da hospedagem disponíveis nesta conexão); usuários antigos não estão autenticando na Vercel, e links de origem podem continuar necessários para histórico e contato.
+- **Segurança de publicação:** não atribuir domínio oficial, alterar DNS, ligar indexação ou declarar clonagem 100% antes de acesso à hospedagem, importação integral das contas, mídias, histórico, autenticação/roles, ensaio de restauração, revalidação final e plano de reversão.
+- **Próximas decisões técnicas:** substituir ponte temporária por APIs transacionais nativas do projeto TanStack sem perder novos cadastros; usar banco relacional independente para contas e relacionamentos; fazer inventário e reconciliação do SQL + `wp-content/uploads` e mapear Careerfy/JobSearch; implementar Google OAuth e provas de propriedade dos perfis antigos.

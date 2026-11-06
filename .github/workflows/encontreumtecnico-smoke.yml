@@ -28,14 +28,6 @@ jobs:
       - name: Unit tests
         working-directory: encontreumtecnico
         run: npm test
-      - name: Discover original logo source (read-only)
-        working-directory: encontreumtecnico
-        continue-on-error: true
-        run: node scripts/probe-brand.mjs
-      - name: Capture authorized original logo and favicon bytes
-        working-directory: encontreumtecnico
-        continue-on-error: true
-        run: node scripts/asset-capture.mjs
       - name: Read-only preview smoke (no fake registrations)
         env:
           URL: https://encontreumtecnico-migracao-1m9pweeeq-msolus.vercel.app
@@ -133,3 +125,14 @@ jobs:
             test "$code" = 200 || exit 1
           done
           echo 'TanStack Vercel public deployment: OK'
+      - name: Verify stable production TanStack address
+        env:
+          URL: https://encontreumtecnico-tanstack.vercel.app
+        run: |
+          set -euo pipefail
+          for path in / /cadastro /galeria /cliente /clientes /atividades /acompanhar /meu-perfil /admin /tecnico/alan-nascimento /logo-original.webp /favicon-original.webp /api/health; do
+            code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/prod-page -w '%{http_code}' "$URL$path")
+            echo "TanStack Production $path HTTP $code"
+            test "$code" = 200 || exit 1
+          done
+          echo 'TanStack stable production alias: OK'
