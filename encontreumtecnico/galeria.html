@@ -1,0 +1,37 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Galeria de técnicos | Encontre um Técnico</title><link rel="stylesheet" href="/assets/base.css"></head><body>
+<header><nav><a href="/" class="logo">Encontre um Técnico</a><div class="links"><a href="/cadastro.html">Cadastrar técnico</a><a href="https://encontreumtecnico.com/">Portal original</a></div></nav></header><main>
+<h1>Galeria de técnicos</h1><p class="muted">Profissionais aprovados na nova plataforma e, quando disponíveis, perfis públicos do portal original. Nenhum anúncio fictício.</p>
+<div class="panel toolbar"><label>Especialidade ou nome<input id="q" type="search" placeholder="Ex.: informática"></label><label>Cidade<input id="city" type="search" placeholder="Ex.: Curitiba"></label><label>Estado<input id="uf" type="search" maxlength="2" placeholder="Ex.: PR"></label></div>
+<div id="info" role="status" class="notice" aria-live="polite">Consultando cadastros reais…</div><div id="cards" class="grid"></div><div class="actions"><button id="more" hidden>Carregar mais técnicos</button><a href="/cadastro.html" class="btn outline">Sou técnico: fazer cadastro</a></div>
+</main><footer>Ambiente de migração · <a href="/">Início</a></footer>
+<script>
+const all=[],cards=document.getElementById('cards'),info=document.getElementById('info'),more=document.getElementById('more');let cursor=null;
+const val=id=>document.getElementById(id).value.trim().toLocaleLowerCase('pt-BR');
+function show(){
+ const filtered=all.filter(x=>(!val('q')||[x.nome,x.especialidade,x.descricao].join(' ').toLocaleLowerCase('pt-BR').includes(val('q')))&&(!val('city')||x.cidade.toLocaleLowerCase('pt-BR').includes(val('city')))&&(!val('uf')||x.uf.toLocaleLowerCase('pt-BR').includes(val('uf'))));
+ cards.replaceChildren();
+ for(const tech of filtered){
+  const article=document.createElement('article'),title=document.createElement('h2'),meta=document.createElement('div'),desc=document.createElement('p');
+  article.className='tech';title.textContent=tech.nome;meta.className='muted';meta.textContent=[tech.especialidade,tech.cidade,tech.uf].filter(Boolean).join(' · ');
+  desc.textContent=tech.descricao||'Descrição profissional não informada.';article.append(title,meta,desc);
+  if(tech.whatsapp){const link=document.createElement('a');link.className='btn';link.target='_blank';link.rel='noopener noreferrer';link.href='https://wa.me/'+(tech.whatsapp.startsWith('55')?tech.whatsapp:'55'+tech.whatsapp);link.textContent='Conversar com o técnico';article.append(link);}
+  else if(tech.url){const link=document.createElement('a');link.className='btn outline';link.href=tech.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Ver perfil original';article.append(link);}
+  cards.append(article);
+ }
+ info.textContent=filtered.length+' técnico(s) exibido(s). '+(!all.length?'A galeria será preenchida somente com registros reais e autorizados.':'');
+}
+function safeWp(item){return {id:item.id,nome:item.nome||'',especialidade:item.servico||'',cidade:item.cidade||'',uf:'',descricao:item.descricao||'',url:item.url||null,whatsapp:''};}
+async function loadPage(){
+ more.disabled=true;
+ try{
+  const url='/api/tecnicos'+(cursor?'?cursor='+encodeURIComponent(cursor):'');
+  const r=await fetch(url);const data=await r.json();if(!r.ok)throw Error(data.erro||'Erro na galeria.');
+  const got=(data.tecnicos||[]);for(const x of got)if(!all.some(y=>y.id===x.id))all.push(x);
+  cursor=data.cursor||null;more.hidden=!cursor;
+  if(!all.length){try{const original=await fetch('/api/profissionais');if(original.ok){const wp=await original.json();for(const x of wp.profissionais||[])if(!all.some(y=>y.id===x.id))all.push(safeWp(x));}}catch{}}
+  show();
+ }catch(err){info.textContent='Não foi possível consultar a galeria: '+err.message;}finally{more.disabled=false;}
+}
+for(const id of ['q','city','uf'])document.getElementById(id).addEventListener('input',show);
+more.addEventListener('click',loadPage);loadPage();
+</script></body></html>

@@ -1,7 +1,13 @@
 {
   "name": "encontreumtecnico-migracao",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Migração isolada do portal Encontre um Técnico para Vercel sem Supabase"
+  "scripts": {
+    "build": "node --test",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.3.1"
+  }
 }

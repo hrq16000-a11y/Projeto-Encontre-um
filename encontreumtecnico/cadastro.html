@@ -1,0 +1,27 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Cadastro de técnico | Encontre um Técnico</title><link rel="stylesheet" href="/assets/base.css"></head><body>
+<header><nav><a href="/" class="logo">Encontre um Técnico</a><div class="links"><a href="/galeria.html">Ver técnicos</a><a href="https://encontreumtecnico.com/">Portal original</a></div></nav></header>
+<main><h1>Cadastre-se como técnico</h1><p class="muted">O cadastro é gratuito. Após o envio, seus dados serão armazenados e revisados antes de aparecer na galeria. Informe apenas dados profissionais que deseja tornar públicos.</p>
+<div class="panel"><form id="cadastro" autocomplete="on">
+<div class="formgrid"><label>Seu nome ou nome profissional *<input name="nome" required minlength="3" maxlength="100" autocomplete="name"></label><label>Especialidade principal *<input name="especialidade" placeholder="Ex.: manutenção de notebooks" required minlength="3" maxlength="100"></label></div>
+<div class="formgrid"><label>Cidade de atendimento *<input name="cidade" required minlength="2" maxlength="90" autocomplete="address-level2"></label><label>UF *<select name="uf" required><option value="">Selecione</option></select></label></div>
+<label>Apresentação profissional<textarea name="descricao" maxlength="900" placeholder="Experiência, serviços e regiões atendidas"></textarea></label>
+<div class="formgrid"><label>E-mail para contato administrativo *<input name="email" type="email" required maxlength="180" autocomplete="email"></label><label>WhatsApp profissional (opcional, será público se aprovado)<input name="whatsapp" type="tel" inputmode="tel" maxlength="19" placeholder="(41) 99999-9999"></label></div>
+<div hidden aria-hidden="true"><label>Deixe em branco<input name="campoExtra" tabindex="-1" autocomplete="off"></label></div>
+<label class="check"><input type="checkbox" name="aceite" required>Li e aceito os <a href="https://encontreumtecnico.com/termos-de-uso/" target="_blank" rel="noopener noreferrer">termos de uso</a> e a <a href="https://encontreumtecnico.com/politica-de-privacidade/" target="_blank" rel="noopener noreferrer">política de privacidade</a> do portal original, sujeitos à revisão na migração.</label>
+<label class="check"><input type="checkbox" name="autorizacaoPublica" required>Autorizo a divulgação do nome profissional, especialidade, cidade, apresentação e, se informado, WhatsApp profissional na galeria.</label>
+<button type="submit" id="submit">Enviar cadastro</button><div role="status" id="feedback" aria-live="polite" hidden></div>
+</form><div id="confirmacao" hidden class="notice success"><strong>Cadastro gravado!</strong><p>Seu cadastro foi recebido e está pendente de revisão administrativa. Guarde o protocolo e sua chave. Eles não serão enviados por e-mail nesta etapa.</p><p><strong>Protocolo:</strong> <span id="protocolo"></span></p><p><strong>Chave privada de acompanhamento:</strong></p><p id="chave" class="key"></p><button type="button" id="copy">Copiar dados</button></div>
+</div></main><footer>Ambiente de migração · <a href="/galeria.html">Galeria</a></footer>
+<script>
+const UFS='AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO'.split(' '),uf=document.querySelector('[name=uf]');
+for(const sigla of UFS){const option=document.createElement('option');option.value=sigla;option.textContent=sigla;uf.append(option);}
+const form=document.getElementById('cadastro'),feedback=document.getElementById('feedback'),submit=document.getElementById('submit');
+form.addEventListener('submit',async e=>{e.preventDefault();feedback.hidden=true;submit.disabled=true;
+ const d=new FormData(form),data={nome:d.get('nome'),especialidade:d.get('especialidade'),cidade:d.get('cidade'),uf:d.get('uf'),descricao:d.get('descricao'),email:d.get('email'),whatsapp:d.get('whatsapp'),campoExtra:d.get('campoExtra'),aceite:d.get('aceite')==='on',autorizacaoPublica:d.get('autorizacaoPublica')==='on'};
+ try{const r=await fetch('/api/cadastro',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const response=await r.json();if(!r.ok)throw Error(response.erro||'Não foi possível cadastrar.');
+ document.getElementById('protocolo').textContent=response.id;document.getElementById('chave').textContent=response.chave;
+ form.hidden=true;document.getElementById('confirmacao').hidden=false;
+ document.getElementById('copy').onclick=()=>navigator.clipboard.writeText('Protocolo: '+response.id+'\nChave: '+response.chave);
+ }catch(err){feedback.textContent=err.message;feedback.className='notice error';feedback.hidden=false;}finally{submit.disabled=false;}
+});
+</script></body></html>
