@@ -34,7 +34,7 @@ export function validate(raw) {
   if(fields.whatsapp && (fields.whatsapp.length < 10 || fields.whatsapp.length > 13))
     return {error:'Informe um telefone com DDD válido ou deixe o campo vazio.'};
   if (raw.aceite !== true || raw.autorizacaoPublica !== true)
-    return {error:'É necessário aceitar os termos e a divulgação dos dados profissionais informados.'};
+    return {error:'É necessário aceitar os termos e a publicação dos dados profissionais (o telefone permanece privado).'};
   if (raw.campoExtra) return {error:'Não foi possível enviar este cadastro.'};
   return {data:fields};
 }
@@ -67,7 +67,7 @@ export function publicFields(record) {
   return {
     id:record.id, nome:record.nome, especialidade:record.especialidade,
     cidade:record.cidade, uf:record.uf, descricao:record.descricao,
-    whatsapp:record.whatsapp || '', aprovadoEm:record.aprovadoEm || null
+    aprovadoEm:record.aprovadoEm || null
   };
 }
 export function respond(res,code,data){

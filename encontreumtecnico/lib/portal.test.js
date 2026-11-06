@@ -12,7 +12,9 @@ test('segredos e e-mail nunca são públicos',()=>{
  const c=publicCliente({...cliente,id:'id',chaveHash:'x'});
  assert.equal('email' in c,false);assert.equal('whatsapp' in c,false);
  const job=publicSolicitacao({...pedido,id:'id',clienteNome:cliente.nome,exibirContato:false,whatsapp:cliente.whatsapp});
- assert.equal(job.whatsapp,'');
+ assert.equal('whatsapp' in job,false);
+ const consented=publicSolicitacao({...pedido,id:'id',exibirContato:true,whatsapp:cliente.whatsapp});
+ assert.equal('whatsapp' in consented,false);
 });
 test('chave de dados é limitada a pastas legítimas',()=>{assert.throws(()=>key('solicitacoes','approved','../../evil'));assert.throws(()=>key('foo','pending','aaaa'));});
 test('digest de token determinístico',()=>assert.equal(digest('a'),digest('a')));

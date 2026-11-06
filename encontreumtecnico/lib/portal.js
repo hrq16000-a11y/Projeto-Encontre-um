@@ -82,6 +82,6 @@ export function publicCliente(v){
 }
 export function publicSolicitacao(v){
  return {id:v.id,titulo:v.titulo,especialidade:v.especialidade,descricao:v.descricao,
-  cidade:v.cidade,uf:v.uf,clienteNome:v.clienteNome||'Cliente verificado',
-  whatsapp:v.exibirContato?v.whatsapp||'':'',publicadoEm:v.publicadoEm||null};
+  cidade:v.cidade,uf:v.uf,clienteNome:v.clienteNome||'Cliente cadastrado',
+  publicadoEm:v.publicadoEm||null};
 }

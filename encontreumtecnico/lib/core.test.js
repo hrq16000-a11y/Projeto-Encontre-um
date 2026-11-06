@@ -7,7 +7,7 @@ test('cadastro válido preserva contato profissional',()=>{const result=validate
 test('cadastro sem consentimento é recusado',()=>assert.ok(validate({...valid,autorizacaoPublica:false}).error));
 test('email inválido é recusado',()=>assert.ok(validate({...valid,email:'invalido'}).error));
 test('honeypot bloqueia spam',()=>assert.ok(validate({...valid,campoExtra:'bot'}).error));
-test('um cadastro aprovado não expõe email nem chave',()=>{const x=publicFields({...valid,id:'x',chaveHash:'secret'});assert.equal('email' in x,false);assert.equal('chaveHash' in x,false);});
+test('um cadastro aprovado não expõe email nem chave',()=>{const x=publicFields({...valid,id:'x',chaveHash:'secret'});assert.equal('email' in x,false);assert.equal('chaveHash' in x,false);assert.equal('whatsapp' in x,false);});
 test('identificadores impedem traversal',()=>assert.throws(()=>keyFor('approved','../etc/passwd')));
 test('credencial usa comparação constante',()=>{const key='a'.repeat(48);assert.equal(verifySecret(key,key),true);assert.equal(verifySecret('b'.repeat(48),key),false);});
 test('hash token determinístico',()=>assert.equal(hash('a'),hash('a')));
