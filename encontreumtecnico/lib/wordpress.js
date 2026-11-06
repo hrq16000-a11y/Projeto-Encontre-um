@@ -31,3 +31,39 @@ export function extractPublicDirectory(html){
   }
   return [...entries.values()].filter(x=>x.nome);
 }
+
+
+// Mapeia somente URLs canônicas e publicamente anunciadas pelo sitemap do WordPress.
+// Os nomes derivados de slugs são identificadores legíveis, NÃO nomes cadastrais verificados.
+export function extractCandidateSitemap(xml) {
+  if(typeof xml!=='string' || xml.length>900000 || !/<(?:urlset|sitemapindex)\b/i.test(xml))return [];
+  const records=new Map();
+  for(const match of xml.matchAll(/<loc>\s*([^<]{5,400})\s*<\/loc>/gi)) {
+    let url; try{url=new URL(decode(match[1].trim()),ORIGIN);}catch{continue;}
+    if(url.protocol!=='https:' || url.hostname!=='encontreumtecnico.com')continue;
+    const parts=url.pathname.split('/').filter(Boolean);
+    if(parts.length!==2 || parts[0]!=='tecnico')continue;
+    const slug=parts[1];
+    if(!/^[a-z0-9._%-]{2,160}$/i.test(slug))continue;
+    const nome=decodeURIComponent(slug).replace(/[-_]+/g,' ').replace(/\b[a-zà-ú]/gi,c=>c.toLocaleUpperCase('pt-BR')).slice(0,100);
+    const canonical=ORIGIN+'/tecnico/'+slug+'/';
+    records.set(canonical,{id:'wp-'+slug,nome,servico:'',cidade:'',descricao:'',url:canonical,imagem:'',nomeInferido:true,origem:'sitemap'});
+    if(records.size>=1000)break;
+  }
+  return [...records.values()];
+}
+
+export function mergeSitemapDirectory(sitemaps, directory=[]) {
+  const map=new Map();
+  for(const collection of sitemaps)for(const profile of collection || [])if(profile?.url)map.set(profile.url,profile);
+  for(const profile of directory||[]) {
+    if(!profile?.url)continue;
+    const record=map.get(profile.url);
+    if(record) map.set(profile.url,{...record,
+      nome:profile.nome||record.nome, imagem:profile.imagem||record.imagem,
+      nomeInferido:!profile.nome, servico:profile.servico||record.servico,
+      descricao:profile.descricao||record.descricao, cidade:profile.cidade||record.cidade
+    });
+  }
+  return [...map.values()];
+}
