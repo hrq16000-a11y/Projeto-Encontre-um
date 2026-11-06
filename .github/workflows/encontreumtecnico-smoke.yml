@@ -121,6 +121,15 @@ jobs:
           code=$(curl -sSL --max-time 15 -o /tmp/health-result -w '%{http_code}' "http://127.0.0.1:3178/api/health")
           echo "/api/health HTTP $code"
           test "$code" = 200
+
+          grep -q 'Precisa de um técnico?' /tmp/start-home
+          code=$(curl -sSL --max-time 22 -o /tmp/search-page -w '%{http_code}' 'http://127.0.0.1:3178/galeria?q=notebook&city=Curitiba')
+          echo "Gallery shared query HTTP $code"
+          test "$code" = 200
+          grep -q 'Encontre um técnico para você' /tmp/search-page
+          test -s .output/public/illustrations/hero-tech.svg
+          grep -q 'mobile-menu-button' src/routes/__root.tsx
+          echo 'Home redesign, query route and mobile navigation smoke: OK'
           echo 'TanStack SSR routes and Vercel API bridge: OK'
       - name: Verify TanStack on deployed Vercel HTTPS
         env:
