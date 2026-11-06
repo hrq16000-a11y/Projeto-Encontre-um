@@ -48,7 +48,8 @@ export async function save(state, id, data, overwrite=false) {
   });
 }
 export async function load(state,id) {
-  const blob=await get(keyFor(state,id), {access:'private'});
+  // Cadastros são dados transacionais: não aceitar leitura CDN desatualizada após revisão/exclusão.
+  const blob=await get(keyFor(state,id), {access:'private',useCache:false});
   if(!blob || !blob.stream) return null;
   return JSON.parse(await new Response(blob.stream).text());
 }
