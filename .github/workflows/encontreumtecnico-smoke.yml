@@ -52,15 +52,18 @@ jobs:
           PY
       - name: Read-only preview smoke (no fake registrations)
         env:
-          URL: https://encontreumtecnico-migracao-d2u09l7ba-msolus.vercel.app
+          URL: https://encontreumtecnico-migracao-i6ky1sjda-msolus.vercel.app
         run: |
           set -euo pipefail
-          for path in / /cadastro.html /galeria.html /admin.html /api/health /api/tecnicos; do
+          for path in / /cadastro.html /galeria.html /admin.html /api/health /api/tecnicos /api/profissionais; do
             echo "GET $path"
             code=$(curl -sSL --retry 3 --retry-delay 2 --connect-timeout 7 --max-time 22 -o /tmp/response -w '%{http_code}' "$URL$path")
             test "$code" = "200" || { echo "Unexpected HTTP $code: $path"; exit 1; }
             if [ "$path" = "/api/health" ]; then
               cp /tmp/response /tmp/health.json
+            fi
+            if [ "$path" = "/api/profissionais" ]; then
+              cp /tmp/response /tmp/origem.json
             fi
           done
           python - <<'PY'
@@ -69,6 +72,8 @@ jobs:
           assert d.get('cadastrosConfigurados') is True, "Vercel Blob não configurado no deploy"
           assert d.get('adminConfigurado') is True, "Painel administrativo não configurado no deploy"
           print("Health OK - armazenamento e administração habilitados")
+          o=json.load(open('/tmp/origem.json'))
+          print('Galeria Wordpress fonte:',o.get('origem'),'perfis retornados:',len(o.get('profissionais',[])))
           PY
           code=$(curl -sSL --connect-timeout 7 --max-time 22 -X POST -H 'Content-Type: application/json' -d '{"nome":"x"}' -o /tmp/invalid -w '%{http_code}' "$URL/api/cadastro")
           test "$code" = "400" || { echo "Validation failure: expected HTTP 400, got $code"; exit 1; }
