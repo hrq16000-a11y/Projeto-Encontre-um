@@ -32,6 +32,10 @@ jobs:
         working-directory: encontreumtecnico
         continue-on-error: true
         run: node scripts/probe-origin.mjs
+      - name: Probe origin sitemap metadata (read-only)
+        working-directory: encontreumtecnico
+        continue-on-error: true
+        run: node scripts/probe-sitemap.mjs
       - name: Read-only preview smoke (no fake registrations)
         env:
           URL: https://encontreumtecnico-migracao-git-feat-encontreumtec-211d15-msolus.vercel.app
