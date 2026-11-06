@@ -33,7 +33,7 @@ async function load(reset=true){
   }
  }catch(err){notice(err.message,false);}
 }
-$('auth').onsubmit=async e=>{e.preventDefault();key=$('token').value;$('token').value='';try{await load();$('auth').hidden=true;$('workspace').hidden=false;}catch(err){notice(err.message,false);key='';}};
+$('auth').onsubmit=async e=>{e.preventDefault();key=$('token').value;$('token').value='';try{await api('/api/admin-portal?tipo=cliente');await load();$('auth').hidden=true;$('workspace').hidden=false;}catch(err){notice(err.message,false);key='';$('workspace').hidden=true;}};
 $('clients').onclick=()=>{tipo='cliente';$('clients').className='';$('requests').className='outline';load()};
 $('requests').onclick=()=>{tipo='solicitacao';$('clients').className='outline';$('requests').className='';load()};
 $('more').onclick=()=>load(false);</script></body></html>

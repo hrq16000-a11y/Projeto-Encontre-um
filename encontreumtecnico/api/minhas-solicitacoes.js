@@ -9,10 +9,12 @@ export default async function handler(req,res){
   if(!checkOwner(req,cliente))return response(res,401,{erro:'Acesso inválido.'});
   if(req.method==='POST'){
    const pending=await page('solicitacoes','pending',{limit:100}),approved=await page('solicitacoes','approved',{limit:100});
-   return response(res,200,{solicitacoes:[
-    ...pending.records.filter(x=>x.clienteId===clienteId).map(x=>({id:x.id,titulo:x.titulo,estado:'pendente',descricao:x.descricao})),
-    ...approved.records.filter(x=>x.clienteId===clienteId).map(x=>({id:x.id,titulo:x.titulo,estado:'publicado',descricao:x.descricao}))
-   ],temMais:Boolean(pending.cursor||approved.cursor)});
+   const owned=new Map();
+   for(const item of approved.records.filter(x=>x.clienteId===clienteId))
+     owned.set(item.id,{id:item.id,titulo:item.titulo,estado:'publicado',descricao:item.descricao});
+   for(const item of pending.records.filter(x=>x.clienteId===clienteId))
+     owned.set(item.id,{id:item.id,titulo:item.titulo,estado:owned.has(item.id)?'edição em revisão':'pendente',descricao:item.descricao});
+   return response(res,200,{solicitacoes:[...owned.values()],temMais:Boolean(pending.cursor||approved.cursor)});
   }
   const id=String(b.id||'');if(!/^[0-9a-f-]{36}$/i.test(id))return response(res,400,{erro:'Identificador inválido.'});
   const pending=await read('solicitacoes','pending',id),approved=await read('solicitacoes','approved',id);
