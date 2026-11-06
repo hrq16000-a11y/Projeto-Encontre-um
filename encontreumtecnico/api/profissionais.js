@@ -1,57 +1,44 @@
-// Adaptador de leitura: nenhuma escrita, cadastro ou credencial no WordPress.
-const ORIGIN = 'https://encontreumtecnico.com';
-const PATHS = [
-  '/wp-json/wp/v2/profissionais',
-  '/wp-json/wp/v2/tecnicos',
-  '/wp-json/wp/v2/prestadores',
-  '/wp-json/wp/v2/job_listing',
-  '/wp-json/wp/v2/listings',
-  '/wp-json/wp/v2/rtcl_listing',
-  '/wp-json/geodir/v2/places'
-];
+// Fonte somente pública do WordPress existente: nunca recria usuários ou acessa registros privados.
+import { get, put } from '@vercel/blob';
+import { extractPublicDirectory } from '../lib/wordpress.js';
+const ROOT='https://encontreumtecnico.com';
+const CACHE_PATH='encontreumtecnico/public-wordpress/tecnicos-primeira-pagina.json';
+const TTL_MS=2*60*60*1000;
 
-function plain(value){
-  if(typeof value === 'string')return value.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,1000);
-  if(value && typeof value.rendered === 'string') return plain(value.rendered);
-  return '';
+async function readCache(){
+  if(!process.env.BLOB_READ_WRITE_TOKEN)return null;
+  try{const result=await get(CACHE_PATH,{access:'private'});if(!result?.stream)return null;
+  const payload=JSON.parse(await new Response(result.stream).text());
+  return Array.isArray(payload.profissionais)?payload:null;
+  }catch{return null;}
 }
-function publicUrl(value){
-  if(typeof value !== 'string') return null;
-  try{const url=new URL(value);return url.protocol==='https:' && /(^|\.)encontreumtecnico\.com$/.test(url.hostname)?url.href:null}
-  catch{return null;}
-}
-function normalize(item){
-  if(!item || typeof item!=='object' || (item.status && item.status!=='publish'))return null;
-  const meta=item.acf||item.meta||{};
-  const nome=plain(item.title)||plain(item.name)||plain(item.nome);
-  if(!nome)return null;
-  return {
-    id:String(item.id||item.slug||nome).slice(0,100),
-    nome:nome.slice(0,140),
-    descricao:plain(item.excerpt)||plain(item.description)||plain(meta.descricao),
-    servico:plain(meta.especialidade)||plain(meta.servico)||plain(meta.categoria)||'',
-    cidade:plain(meta.cidade)||plain(meta.city)||plain(item.city)||'',
-    url:publicUrl(item.link)||publicUrl(item.url)
-  };
+async function saveCache(profissionais){
+  if(!process.env.BLOB_READ_WRITE_TOKEN)return;
+  try{await put(CACHE_PATH,JSON.stringify({profissionais,at:new Date().toISOString()}),{
+    access:'private',contentType:'application/json',addRandomSuffix:false,allowOverwrite:true
+  });}catch{/* Cache opcional, a leitura pública permanece funcional. */}
 }
 export default async function handler(req,res){
-  res.setHeader('Cache-Control','public, s-maxage=300, stale-while-revalidate=600');
-  res.setHeader('X-Robots-Tag','noindex, nofollow');
+  res.setHeader('Cache-Control','public,s-maxage=600,stale-while-revalidate=900');
+  res.setHeader('X-Robots-Tag','noindex,nofollow');
   if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).json({erro:'Método não permitido'});}
-  let reached=false;
-  for(const path of PATHS){
-    try{
-      const resp=await fetch(ORIGIN+path+'?per_page=100&status=publish&_fields=id,slug,status,title,name,excerpt,description,acf,meta,city,link,url',{
-        signal:AbortSignal.timeout(2400),headers:{Accept:'application/json'}
-      });
-      if(resp.status===404)continue;
-      if(!resp.ok)continue;
-      reached=true;
-      const body=await resp.json();
-      if(!Array.isArray(body))continue;
-      const profissionais=body.map(normalize).filter(Boolean);
-      if(profissionais.length)return res.status(200).json({status:'ok',origem:'wordpress-publico',profissionais});
-    }catch{/* Fontes não expostas ou inacessíveis; nunca inventar perfis. */}
-  }
-  return res.status(200).json({status:reached?'sem-cadastros-publicos':'indisponivel',origem:'wordpress-publico',profissionais:[]});
+  const cached=await readCache();
+  if(cached && Date.now()-Date.parse(cached.at||0)<TTL_MS)
+    return res.status(200).json({status:'ok',origem:'wordpress-cache-publico',profissionais:cached.profissionais});
+  try{
+    const response=await fetch(ROOT+'/lista-de-tecnicos/',{
+      headers:{Accept:'text/html','User-Agent':'EncontreUmTecnico-Migracao/1.0'},
+      signal:AbortSignal.timeout(5500)
+    });
+    if(response.ok && (response.headers.get('content-type')||'').includes('text/html')){
+      const html=await response.text();
+      const profissionais=extractPublicDirectory(html);
+      if(profissionais.length){
+        await saveCache(profissionais);
+        return res.status(200).json({status:'ok',origem:'wordpress-html-publico',profissionais});
+      }
+    }
+  }catch{/* WordPress pode estar temporariamente indisponível. */}
+  if(cached)return res.status(200).json({status:'cache',origem:'wordpress-cache-publico',profissionais:cached.profissionais});
+  return res.status(200).json({status:'indisponivel',origem:'wordpress-publico',profissionais:[]});
 }
