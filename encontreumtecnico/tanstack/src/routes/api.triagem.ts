@@ -33,7 +33,7 @@ export const Route=createFileRoute('/api/triagem')({server:{handlers:{
    raw=JSON.parse(text)
   }catch{return noStoreJSON({erro:'Formulário inválido.'},400)}
   const validated=validateTriage(raw)
-  if(validated.error)return noStoreJSON({erro:validated.error},400)
+  if(!validated.value)return noStoreJSON({erro:validated.error||'Triagem inválida'},400)
   const v=validated.value
   try{
    const target=await approvedTarget(v.tecnico)
