@@ -13,7 +13,7 @@ function show(){
  cards.replaceChildren();
  for(const tech of filtered){
   const article=document.createElement('article'),title=document.createElement('h2'),meta=document.createElement('div'),desc=document.createElement('p');
-  article.className='tech';title.textContent=tech.nome;meta.className='muted';meta.textContent=[tech.especialidade,tech.cidade,tech.uf].filter(Boolean).join(' · ');
+  article.className='tech';if(tech.imagem){const photo=document.createElement('img');photo.src=tech.imagem;photo.alt='Foto profissional de '+tech.nome;photo.loading='lazy';photo.referrerPolicy='no-referrer';photo.style.cssText='width:100%;height:168px;object-fit:cover;border-radius:10px;margin-bottom:12px';article.append(photo);}title.textContent=tech.nome;meta.className='muted';meta.textContent=[tech.especialidade,tech.cidade,tech.uf].filter(Boolean).join(' · ');
   desc.textContent=tech.descricao||'Descrição profissional não informada.';article.append(title,meta,desc);
   if(tech.whatsapp){const link=document.createElement('a');link.className='btn';link.target='_blank';link.rel='noopener noreferrer';link.href='https://wa.me/'+(tech.whatsapp.startsWith('55')?tech.whatsapp:'55'+tech.whatsapp);link.textContent='Conversar com o técnico';article.append(link);}
   else if(tech.url){const link=document.createElement('a');link.className='btn outline';link.href=tech.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Ver perfil original';article.append(link);}
@@ -21,7 +21,7 @@ function show(){
  }
  info.textContent=filtered.length+' técnico(s) exibido(s). '+(!all.length?'A galeria será preenchida somente com registros reais e autorizados.':'');
 }
-function safeWp(item){return {id:item.id,nome:item.nome||'',especialidade:item.servico||'',cidade:item.cidade||'',uf:'',descricao:item.descricao||'',url:item.url||null,whatsapp:''};}
+function safeWp(item){return {id:item.id,nome:item.nome||'',especialidade:item.servico||'',cidade:item.cidade||'',uf:'',descricao:item.descricao||'',url:item.url||null,imagem:item.imagem||'',whatsapp:''};}
 async function loadPage(){
  more.disabled=true;
  try{
