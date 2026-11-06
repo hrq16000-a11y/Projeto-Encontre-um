@@ -45,12 +45,12 @@
 <body>
   <header class="top"><div class="wrap nav">
     <a class="brand" href="/" aria-label="Encontre um Técnico"><span class="mark">T</span><span>Encontre um Técnico <span class="small" style="display:block">Nova plataforma · homologação</span></span></a>
-    <div style="display:flex;flex-wrap:wrap;gap:10px"><a class="btn secondary" href="/galeria.html">Ver técnicos</a><a class="btn" href="/cadastro.html">Cadastrar técnico</a><a class="btn secondary" href="/acompanhar.html">Acompanhar cadastro</a><a class="btn secondary" href="/meu-perfil.html">Meu perfil</a><a class="btn secondary" href="https://encontreumtecnico.com/" rel="noopener">Acessar portal atual</a></div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px"><a class="btn secondary" href="/galeria.html">Galeria de técnicos</a><a class="btn secondary" href="/atividades.html">Solicitações de serviço</a><a class="btn secondary" href="/clientes.html">Clientes</a><a class="btn" href="/cliente.html">Área do cliente</a><a class="btn" href="/cadastro.html">Cadastrar técnico</a><a class="btn secondary" href="/acompanhar.html">Acompanhar cadastro</a><a class="btn secondary" href="/meu-perfil.html">Meu perfil</a><a class="btn secondary" href="https://encontreumtecnico.com/" rel="noopener">Acessar portal atual</a></div>
   </div></header>
   <main>
     <div class="hero"><div class="wrap"><span class="tag">Migração sem interromper o atendimento</span>
       <h1>Encontre um técnico perto de você.</h1>
-      <p>Estamos reconstruindo o portal para oferecer buscas mais rápidas e perfis profissionais organizados. Durante a migração, o WordPress continua sendo a fonte oficial de cadastros.</p>
+      <p>Conheça profissionais reais, faça seu cadastro e solicite serviços com negociação direta. A plataforma nova está em validação; o WordPress original continua disponível.</p>
       <form id="searchForm" class="search" role="search">
         <input id="query" type="search" placeholder="Especialidade ou serviço (ex.: computador)" aria-label="Especialidade ou serviço" maxlength="90">
         <input id="city" type="text" placeholder="Cidade" aria-label="Cidade" maxlength="90">
@@ -62,7 +62,7 @@
       <p class="muted">Somente registros públicos reais. Nenhum perfil de demonstração será publicado.</p>
       <div id="status" class="status" role="status" aria-live="polite">Consultando os cadastros públicos do portal atual…</div>
       <div id="results" hidden></div>
-      <div class="features">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:26px"><a class="btn" href="/cliente.html">Preciso contratar um técnico</a><a class="btn secondary" href="/cadastro.html">Sou técnico · Cadastrar gratuitamente</a><a class="btn secondary" href="/admin-portal.html">Administração</a></div><div class="features">
         <div><strong>Contato direto</strong>O cliente fala com o profissional, sem leilão de mão de obra.</div>
         <div><strong>Informação verificável</strong>Perfis e informações somente após importação ou origem pública confirmada.</div>
         <div><strong>Preservação do histórico</strong>Cadastros e URLs originais serão migrados após validação do backup.</div>
@@ -81,11 +81,11 @@
       results.replaceChildren();
       if(!selected.length){
         statusBox.hidden=false;
-        statusBox.textContent=records.length?'Nenhum cadastro corresponde aos filtros. Tente outra cidade ou serviço.':'Nenhum cadastro público foi importado nesta prévia. Use o portal atual para consultar ou se cadastrar.';
+        statusBox.textContent=records.length?'Nenhum cadastro corresponde aos filtros. Tente outra cidade ou serviço.':'Nenhum perfil encontrado com esses filtros. Veja a galeria completa para pesquisar outros profissionais.';
         results.hidden=true;return;
       }
-      statusBox.hidden=false;statusBox.textContent=selected.length+' perfil(is) público(s) encontrado(s).';
-      for(const x of selected){
+      statusBox.hidden=false;statusBox.textContent=selected.length+' perfis públicos identificados. Exibindo uma amostra abaixo; veja a galeria completa.';
+      for(const x of selected.slice(0,8)){
         const article=document.createElement('article'),title=document.createElement('h3'),summary=document.createElement('p'),meta=document.createElement('span');
         title.textContent=x.nome;summary.textContent=x.descricao||'Descrição não informada.';
         meta.className='muted';meta.textContent=[x.servico,x.cidade].filter(Boolean).join(' · ');
