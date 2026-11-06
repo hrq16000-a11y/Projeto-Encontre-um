@@ -1,7 +1,8 @@
 import { put, get, list, del } from '@vercel/blob';
 import { createHash, timingSafeEqual } from 'node:crypto';
 
-const PREFIX = 'encontreumtecnico/v1/';
+// A private build-only diagnostic namespace keeps test profiles completely outside the public gallery.
+const PREFIX = process.env.REGISTRATION_STORAGE_PREFIX || 'encontreumtecnico/v1/';
 const statuses = new Set(['pending','approved']);
 const ID = /^[0-9a-f-]{36}$/i;
 
