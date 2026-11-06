@@ -6,6 +6,7 @@
 </main><footer>Ambiente de migração · <a href="/">Início</a></footer>
 <script>
 const all=[],cards=document.getElementById('cards'),info=document.getElementById('info'),more=document.getElementById('more');let cursor=null;
+const params=new URLSearchParams(location.search);document.getElementById('q').value=(params.get('q')||'').slice(0,90);document.getElementById('city').value=(params.get('city')||'').slice(0,90);
 const val=id=>document.getElementById(id).value.trim().toLocaleLowerCase('pt-BR');
 function show(){
  const filtered=all.filter(x=>(!val('q')||[x.nome,x.especialidade,x.descricao].join(' ').toLocaleLowerCase('pt-BR').includes(val('q')))&&(!val('city')||x.cidade.toLocaleLowerCase('pt-BR').includes(val('city')))&&(!val('uf')||x.uf.toLocaleLowerCase('pt-BR').includes(val('uf'))));
