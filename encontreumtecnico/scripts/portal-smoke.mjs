@@ -43,7 +43,7 @@ if(!process.env.BLOB_READ_WRITE_TOKEN || !process.env.ADMIN_ACCESS_TOKEN){
   const visible=await call(requests,'GET');assert.equal(visible.code,200);
   const record=visible.body.solicitacoes.find(x=>x.id===jobId);
   assert.ok(record);assert.equal(record.whatsapp,'');
-  const mine=await call(own,'POST',{clienteId},secret);
+  const mine=await call(own,'POST',{clienteId:clientId},secret);
   assert.equal(mine.code,200);assert.ok(mine.body.solicitacoes.some(x=>x.id===jobId));
 
   const edited=await call(own,'PUT',{...job,clienteId:clientId,id:jobId,descricao:'Revisamos o endereço da rede do escritório experimental.'},secret);
