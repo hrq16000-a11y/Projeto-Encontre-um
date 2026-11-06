@@ -46,12 +46,12 @@ if(!process.env.BLOB_READ_WRITE_TOKEN || !process.env.ADMIN_ACCESS_TOKEN){
   const mine=await call(own,'POST',{clienteId},secret);
   assert.equal(mine.code,200);assert.ok(mine.body.solicitacoes.some(x=>x.id===jobId));
 
-  const edited=await call(own,'PUT',{...job,id:jobId,descricao:'Revisamos o endereço da rede do escritório experimental.'},secret);
+  const edited=await call(own,'PUT',{...job,clienteId:clientId,id:jobId,descricao:'Revisamos o endereço da rede do escritório experimental.'},secret);
   assert.equal(edited.code,200);assert.equal((await store.read('solicitacoes','approved',jobId)).descricao,job.descricao);
   const reapprove=await call(admin,'POST',{tipo:'solicitacao',id:jobId,acao:'aprovar'},adminKey);
   assert.equal(reapprove.code,200);
 
-  const deletedJob=await call(own,'DELETE',{clienteId,id:jobId},secret);assert.equal(deletedJob.code,200);
+  const deletedJob=await call(own,'DELETE',{clienteId:clientId,id:jobId},secret);assert.equal(deletedJob.code,200);
   assert.equal(await store.read('solicitacoes','approved',jobId),null);
   const deletedClient=await call(client,'DELETE',{id:clientId},secret);assert.equal(deletedClient.code,200);
   assert.equal(await store.read('clientes','approved',clientId),null);
