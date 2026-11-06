@@ -45,7 +45,7 @@
 <body>
   <header class="top"><div class="wrap nav">
     <a class="brand" href="/" aria-label="Encontre um Técnico"><span class="mark">T</span><span>Encontre um Técnico <span class="small" style="display:block">Nova plataforma · homologação</span></span></a>
-    <div style="display:flex;flex-wrap:wrap;gap:10px"><a class="btn secondary" href="/galeria.html">Galeria de técnicos</a><a class="btn secondary" href="/atividades.html">Solicitações de serviço</a><a class="btn secondary" href="/clientes.html">Clientes</a><a class="btn" href="/cliente.html">Área do cliente</a><a class="btn" href="/cadastro.html">Cadastrar técnico</a><a class="btn secondary" href="/acompanhar.html">Acompanhar cadastro</a><a class="btn secondary" href="/meu-perfil.html">Meu perfil</a><a class="btn secondary" href="https://encontreumtecnico.com/" rel="noopener">Acessar portal atual</a></div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px"><a class="btn secondary" href="/galeria">Galeria de técnicos</a><a class="btn secondary" href="/atividades">Solicitações de serviço</a><a class="btn secondary" href="/clientes">Clientes</a><a class="btn" href="/cliente">Área do cliente</a><a class="btn" href="/cadastro">Cadastrar técnico</a><a class="btn secondary" href="/acompanhar">Acompanhar cadastro</a><a class="btn secondary" href="/meu-perfil">Meu perfil</a><a class="btn secondary" href="https://encontreumtecnico.com/" rel="noopener">Acessar portal atual</a></div>
   </div></header>
   <main>
     <div class="hero"><div class="wrap"><span class="tag">Migração sem interromper o atendimento</span>
@@ -62,7 +62,7 @@
       <p class="muted">Somente registros públicos reais. Nenhum perfil de demonstração será publicado.</p>
       <div id="status" class="status" role="status" aria-live="polite">Consultando os cadastros públicos do portal atual…</div>
       <div id="results" hidden></div>
-      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:26px"><a class="btn" href="/cliente.html">Preciso contratar um técnico</a><a class="btn secondary" href="/cadastro.html">Sou técnico · Cadastrar gratuitamente</a><a class="btn secondary" href="/admin-portal.html">Administração</a></div><div class="features">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:26px"><a class="btn" href="/cliente">Preciso contratar um técnico</a><a class="btn secondary" href="/cadastro">Sou técnico · Cadastrar gratuitamente</a><a class="btn secondary" href="/admin-portal">Administração</a></div><div class="features">
         <div><strong>Contato direto</strong>O cliente fala com o profissional, sem leilão de mão de obra.</div>
         <div><strong>Informação verificável</strong>Perfis e informações somente após importação ou origem pública confirmada.</div>
         <div><strong>Preservação do histórico</strong>Cadastros e URLs originais serão migrados após validação do backup.</div>
@@ -95,7 +95,7 @@
       }
       results.hidden=false;
     }
-    form.addEventListener('submit',e=>{e.preventDefault();const q=document.getElementById('query').value.trim();const city=document.getElementById('city').value.trim();location.href='/galeria.html?q='+encodeURIComponent(q)+'&city='+encodeURIComponent(city);});
+    form.addEventListener('submit',e=>{e.preventDefault();const q=document.getElementById('query').value.trim();const city=document.getElementById('city').value.trim();location.href='/galeria?q='+encodeURIComponent(q)+'&city='+encodeURIComponent(city);});
     (async()=>{try{
       const response=await fetch('/api/profissionais',{headers:{Accept:'application/json'}});
       if(!response.ok)throw new Error('HTTP '+response.status);
