@@ -98,3 +98,27 @@ jobs:
       - name: Build TanStack SSR
         working-directory: encontreumtecnico/tanstack
         run: npm run build
+      - name: Smoke TanStack SSR and extensionless routes
+        working-directory: encontreumtecnico/tanstack
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          PORT=3178 HOST=127.0.0.1 node .output/server/index.mjs > /tmp/tanstack-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 25); do
+            if curl -fsS --max-time 2 http://127.0.0.1:3178/ -o /tmp/start-home; then ready=1; break; fi
+            sleep 1
+          done
+          if [ "$ready" != 1 ]; then cat /tmp/tanstack-server.log; exit 1; fi
+          for path in / /cadastro /galeria /cliente /clientes /atividades /acompanhar /meu-perfil /admin; do
+            code=$(curl -sSL --max-time 17 -o /tmp/route-body -w '%{http_code}' "http://127.0.0.1:3178$path")
+            echo "$path: HTTP $code"
+            test "$code" = 200 || { cat /tmp/tanstack-server.log; exit 1; }
+            grep -qi 'Encontre um Técnico' /tmp/route-body || { echo "SSR HTML missing brand: $path"; exit 1; }
+          done
+          code=$(curl -sSL --max-time 15 -o /tmp/health-result -w '%{http_code}' "http://127.0.0.1:3178/api/health")
+          echo "/api/health HTTP $code"
+          test "$code" = 200
+          echo 'TanStack SSR routes and Vercel API bridge: OK'
