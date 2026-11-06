@@ -1,7 +1,7 @@
 import type {ReactNode} from 'react'
 import {createRootRoute,HeadContent,Scripts,Outlet,Link} from '@tanstack/react-router'
 import '../styles.css'
-const logo='https://encontreumtecnico.com/wp-content/uploads/2025/01/logo-encontreumtecnico-b.png.webp'
+const logo='/logo-original.webp'
 export const Route=createRootRoute({head:()=>({meta:[{charSet:'utf-8'},{name:'viewport',content:'width=device-width, initial-scale=1'},{name:'robots',content:'noindex,nofollow'},{name:'description',content:'Nova plataforma Encontre um Técnico — ambiente de migração em homologação.'},{title:'Encontre um Técnico — plataforma em migração'}]}),component:Root})
 function Root(){return <Document><div className="app-shell"><header className="header"><nav className="container nav"><Link to="/" aria-label="Encontre um Técnico" className="logo"><img src={logo} alt="Encontre um Técnico" width={260} height={39}/></Link><div className="nav-links"><Link to="/galeria">Técnicos</Link><Link to="/cadastro">Sou técnico</Link><Link to="/cliente">Clientes</Link><Link to="/atividades">Serviços</Link><Link to="/admin">Administração</Link></div></nav></header><Outlet/><footer className="footer"><div className="container">Encontre um Técnico · migração em homologação · <a href="https://encontreumtecnico.com/">Portal WordPress atual</a></div></footer></div></Document>}
-function Document({children}:{children:ReactNode}){return <html lang="pt-BR"><head><HeadContent/></head><body>{children}<Scripts/></body></html>}
+function Document({children}:{children:ReactNode}){return <html lang="pt-BR"><head><HeadContent/><link rel="icon" type="image/webp" href="/favicon-original.webp"/></head><body>{children}<Scripts/></body></html>}

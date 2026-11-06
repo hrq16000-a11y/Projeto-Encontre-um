@@ -25,3 +25,5 @@ footer{padding:22px;text-align:center;color:#6d7c92}
 .honeypot{position:absolute!important;left:-99999px!important;width:1px;height:1px;overflow:hidden}
 #workspace{margin-top:24px}
 @media(max-width:760px){.twocol{grid-template-columns:1fr}}
+
+.nav .logo img,.top .brand img{max-width:230px;width:min(230px,64vw);height:auto;display:block}
