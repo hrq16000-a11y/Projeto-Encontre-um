@@ -122,3 +122,14 @@ jobs:
           echo "/api/health HTTP $code"
           test "$code" = 200
           echo 'TanStack SSR routes and Vercel API bridge: OK'
+      - name: Verify TanStack on deployed Vercel HTTPS
+        env:
+          URL: https://encontreumtecnico-tanstack-qte3bkkaq-msolus.vercel.app
+        run: |
+          set -euo pipefail
+          for path in / /cadastro /galeria /cliente /clientes /atividades /acompanhar /meu-perfil /admin /logo-original.webp /favicon-original.webp /api/health; do
+            code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/live-page -w '%{http_code}' "$URL$path")
+            echo "TanStack Vercel $path HTTP $code"
+            test "$code" = 200 || exit 1
+          done
+          echo 'TanStack Vercel public deployment: OK'
