@@ -479,3 +479,33 @@ button{cursor:pointer}
 .professional-note p{font-size:12px;line-height:1.7;margin:0;color:#617d96}
 @media(max-width:850px){.client-entry-grid{grid-template-columns:1fr}.professional-detail-grid{grid-template-columns:1fr}}
 @media(max-width:550px){.client-page{padding:35px 0 60px}.client-page-header{flex-direction:column;gap:13px}.client-card,.client-dashboard{padding:20px}.professional-profile-body{padding:26px 19px}.professional-cover{height:170px}.professional-avatar{width:99px;height:99px;margin-top:-75px}.professional-actions .btn{width:100%}}
+
+
+/* Rodada 5 — mobile safe-area, discoverability and accessibility */
+.skip-to-content{position:fixed;z-index:99;left:12px;top:-120px;background:#fff;color:#103d65;padding:14px 21px;border:3px solid #136cc2;border-radius:9px;font-weight:800;text-decoration:none}
+.skip-to-content:focus{top:12px}
+#main-content:focus{outline:0}
+.directory-region-hint{display:flex;align-items:center;gap:14px;padding:18px 19px;margin:12px 0 24px;border:1px solid #cfe4f9;background:#f0f8ff;border-radius:15px;color:#1e6d9d}
+.directory-region-hint>svg{flex:0 0 auto}
+.directory-region-hint>div{flex:1}
+.directory-region-hint strong{color:#245878;font-size:13px}
+.directory-region-hint p{margin:5px 0 0;color:#57758c;font-size:12px;line-height:1.6}
+.directory-region-hint button{font-size:12px;white-space:normal;min-height:44px}
+.directory-region-hint .btn.secondary[aria-pressed="true"]{background:#e2f3fc;border-color:#4d9ed0}
+.profile-action,.nav-links>a,.service-filter-row a,.category-card,.clear-filters{touch-action:manipulation}
+.hero-search input:focus-visible,.directory-filters input:focus-visible{outline:2px solid #139fe6;outline-offset:3px;border-radius:4px}
+@media(max-width:740px){
+ .directory-region-hint{align-items:flex-start;flex-wrap:wrap}
+ .directory-region-hint button{width:100%}
+ .nav-links.expanded{max-height:calc(100dvh - 79px);overflow-y:auto}
+ .market-hero-grid{overflow:visible}
+ .hero-visual{pointer-events:none}
+}
+@media(max-width:520px){
+ .header{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+ .market-hero{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+ .directory-filters input,.hero-search input,.signup-form input,.client-card input{font-size:16px}
+ .service-filter-row a{min-height:38px;display:inline-flex;align-items:center}
+ .hero-search-button,.directory-filters>.btn,.signup-submit{min-height:48px}
+ .nav-links.expanded a{min-height:48px}
+}
