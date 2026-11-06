@@ -29,7 +29,7 @@ async function loadPage(){
   const r=await fetch(url);const data=await r.json();if(!r.ok)throw Error(data.erro||'Erro na galeria.');
   const got=(data.tecnicos||[]);for(const x of got)if(!all.some(y=>y.id===x.id))all.push(x);
   cursor=data.cursor||null;more.hidden=!cursor;
-  if(!all.length){try{const original=await fetch('/api/profissionais');if(original.ok){const wp=await original.json();for(const x of wp.profissionais||[])if(!all.some(y=>y.id===x.id))all.push(safeWp(x));}}catch{}}
+  if(!all.some(x=>String(x.id).startsWith('wp-'))){try{const original=await fetch('/api/profissionais');if(original.ok){const wp=await original.json();for(const x of wp.profissionais||[])if(!all.some(y=>y.id===x.id))all.push(safeWp(x));}}catch{}}
   show();
  }catch(err){info.textContent='Não foi possível consultar a galeria: '+err.message;}finally{more.disabled=false;}
 }
