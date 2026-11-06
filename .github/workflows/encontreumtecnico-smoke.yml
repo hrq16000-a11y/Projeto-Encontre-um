@@ -93,6 +93,11 @@ jobs:
       - name: TypeScript typecheck TanStack routes
         working-directory: encontreumtecnico/tanstack
         run: npm run typecheck
+      - name: Verify original hero artwork in new build
+        working-directory: encontreumtecnico/tanstack
+        run: |
+          test -s .output/public/illustrations/hero-tech.svg
+          grep -q 'Ilustração de atendimento técnico' .output/public/illustrations/hero-tech.svg
       - name: Smoke TanStack SSR and extensionless routes
         working-directory: encontreumtecnico/tanstack
         timeout-minutes: 2
@@ -122,7 +127,7 @@ jobs:
           URL: https://encontreumtecnico-tanstack-ohx6pcom1-msolus.vercel.app
         run: |
           set -euo pipefail
-          for path in / /cadastro /galeria /cliente /clientes /atividades /acompanhar /meu-perfil /admin /tecnico/alan-nascimento /illustrations/hero-tech.svg /logo-original.webp /favicon-original.webp /api/health; do
+          for path in / /cadastro /galeria /cliente /clientes /atividades /acompanhar /meu-perfil /admin /tecnico/alan-nascimento /logo-original.webp /favicon-original.webp /api/health; do
             code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/live-page -w '%{http_code}' "$URL$path")
             echo "TanStack Vercel $path HTTP $code"
             test "$code" = 200 || exit 1
