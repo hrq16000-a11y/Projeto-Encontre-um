@@ -1,0 +1,176 @@
+name: Encontre um Técnico - validação de migração
+on:
+  push:
+    branches:
+      - feat/encontreumtecnico-migracao-vercel
+    paths:
+      - 'encontreumtecnico/**'
+      - '.github/workflows/encontreumtecnico-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020c
+        with:
+          node-version: '22'
+      - name: Install app dependencies
+        working-directory: encontreumtecnico
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Unit tests
+        working-directory: encontreumtecnico
+        run: npm test
+      - name: Read-only preview smoke (no fake registrations)
+        env:
+          URL: https://encontreumtecnico-migracao-1m9pweeeq-msolus.vercel.app
+        run: |
+          set -euo pipefail
+          for path in / /cadastro /galeria /admin /acompanhar /meu-perfil /cliente /clientes /atividades /admin-portal /assets/logo-original.webp /assets/favicon-original.webp /api/health /api/tecnicos /api/profissionais /api/clientes /api/solicitacoes; do
+            echo "GET $path"
+            code=$(curl -sSL --retry 3 --retry-delay 2 --connect-timeout 7 --max-time 22 -o /tmp/response -w '%{http_code}' "$URL$path")
+            test "$code" = "200" || { echo "Unexpected HTTP $code: $path"; exit 1; }
+            if [ "$path" = "/api/health" ]; then
+              cp /tmp/response /tmp/health.json
+            fi
+            if [ "$path" = "/api/profissionais" ]; then
+              cp /tmp/response /tmp/origem.json
+            fi
+          done
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/health.json'))
+          assert d.get('cadastrosConfigurados') is True, "Vercel Blob não configurado no deploy"
+          assert d.get('adminConfigurado') is True, "Painel administrativo não configurado no deploy"
+          print("Health OK - armazenamento e administração habilitados")
+          o=json.load(open('/tmp/origem.json'))
+          profiles=o.get('profissionais',[])
+          print('Galeria WordPress:',o.get('origem'),'perfis públicos:',len(profiles),'fontes válidas:',o.get('fontesValidas'))
+          assert o.get('fontesValidas') == 2, "Falta um dos dois sitemaps de técnicos"
+          assert len(profiles) >= 300, "A galeria está incompleta (menos de 300 URLs públicas)"
+          assert len({x.get('url') for x in profiles}) == len(profiles), "Perfis duplicados encontrados"
+          assert all(x.get('url','').startswith('https://encontreumtecnico.com/tecnico/') for x in profiles), "URLs fora da origem oficial"
+          PY
+          code=$(curl -sSL --connect-timeout 7 --max-time 22 -X POST -H 'Content-Type: application/json' -d '{"nome":"x"}' -o /tmp/invalid -w '%{http_code}' "$URL/api/cadastro")
+          test "$code" = "400" || { echo "Validation failure: expected HTTP 400, got $code"; exit 1; }
+          status_code=$(curl -sSL --connect-timeout 7 --max-time 22 -X POST -H 'Content-Type: application/json' -d '{"id":"invalid"}' -o /tmp/status_invalid -w '%{http_code}' "$URL/api/status")
+          test "$status_code" = "400" || { echo "Status API validation: expected 400, got $status_code"; exit 1; }
+          code=$(curl -sSL --connect-timeout 7 --max-time 22 -X POST -H 'Content-Type: application/json' -d '{"id":"invalid"}' -o /tmp/profile_invalid -w '%{http_code}' "$URL/api/perfil")
+          test "$code" = "401" || { echo "Unauthorized profile access: expected 401, got $code"; exit 1; }
+          client_code=$(curl -sSL --connect-timeout 7 --max-time 22 -X POST -H 'Content-Type: application/json' -d '{"acao":"cadastro"}' -o /tmp/invalid_client -w '%{http_code}' "$URL/api/cliente")
+          test "$client_code" = "400" || { echo "Client validation expected 400, got $client_code"; exit 1; }
+          request_code=$(curl -sSL --connect-timeout 7 --max-time 22 -X POST -H 'Content-Type: application/json' -d '{}' -o /tmp/invalid_request -w '%{http_code}' "$URL/api/solicitacoes")
+          test "$request_code" = "400" || { echo "Service request validation expected 400, got $request_code"; exit 1; }
+          admin_code=$(curl -sSL --connect-timeout 7 --max-time 22 -o /tmp/invalid_admin -w '%{http_code}' "$URL/api/admin-portal?tipo=cliente")
+          test "$admin_code" = "401" || { echo "Admin access without credentials expected 401, got $admin_code"; exit 1; }
+          mine_code=$(curl -sSL --connect-timeout 7 --max-time 22 -X POST -H 'Content-Type: application/json' -d '{"clienteId":"invalid"}' -o /tmp/invalid_mine -w '%{http_code}' "$URL/api/minhas-solicitacoes")
+          test "$mine_code" = "401" || { echo "Private requests access expected 401, got $mine_code"; exit 1; }
+          echo "Smoke checks passed, without writing a profile."
+
+  tanstack-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020c
+        with:
+          node-version: '22'
+      - name: Install TanStack dependencies
+        working-directory: encontreumtecnico/tanstack
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Build TanStack SSR
+        working-directory: encontreumtecnico/tanstack
+        run: npm run build
+      - name: TypeScript typecheck TanStack routes
+        working-directory: encontreumtecnico/tanstack
+        run: npm run typecheck
+      - name: Test public directory and location transparency
+        working-directory: encontreumtecnico/tanstack
+        run: node --experimental-strip-types --test tests/directory.test.mjs
+      - name: Verify original hero artwork in new build
+        working-directory: encontreumtecnico/tanstack
+        run: |
+          test -s .output/public/illustrations/hero-tech.svg
+          grep -q 'Ilustração de atendimento técnico' .output/public/illustrations/hero-tech.svg
+      - name: Smoke TanStack SSR and extensionless routes
+        working-directory: encontreumtecnico/tanstack
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          PORT=3178 HOST=127.0.0.1 node .output/server/index.mjs > /tmp/tanstack-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 25); do
+            if curl -fsS --max-time 2 http://127.0.0.1:3178/ -o /tmp/start-home; then ready=1; break; fi
+            sleep 1
+          done
+          if [ "$ready" != 1 ]; then cat /tmp/tanstack-server.log; exit 1; fi
+          for path in / /cadastro /galeria /cliente /clientes /atividades /acompanhar /meu-perfil /admin /tecnico/alan-nascimento; do
+            code=$(curl -sSL --max-time 17 -o /tmp/route-body -w '%{http_code}' "http://127.0.0.1:3178$path")
+            echo "$path: HTTP $code"
+            test "$code" = 200 || { cat /tmp/tanstack-server.log; exit 1; }
+            grep -qi 'Encontre um Técnico' /tmp/route-body || { echo "SSR HTML missing brand: $path"; exit 1; }
+          done
+          code=$(curl -sSL --max-time 15 -o /tmp/health-result -w '%{http_code}' "http://127.0.0.1:3178/api/health")
+          echo "/api/health HTTP $code"
+          test "$code" = 200
+
+          grep -q 'Precisa de um técnico?' /tmp/start-home
+          grep -q 'Pular para o conteúdo' /tmp/start-home
+          grep -q 'Perfis sem região' src/routes/galeria.tsx || grep -q 'perfis sem região' src/routes/galeria.tsx
+          code=$(curl -sSL --max-time 20 -o /tmp/new-approved-fallback -w '%{http_code}' 'http://127.0.0.1:3178/tecnico/e99a8655-7e4a-4319-a54c-4ab33164109c')
+          echo "New technician UUID route HTTP $code"
+          test "$code" = "200"
+          code=$(curl -sSL --max-time 22 -o /tmp/search-page -w '%{http_code}' 'http://127.0.0.1:3178/galeria?q=notebook&city=Curitiba')
+          echo "Gallery shared query HTTP $code"
+          test "$code" = 200
+          grep -q 'Encontre um técnico para você' /tmp/search-page
+          test -s .output/public/illustrations/hero-tech.svg
+          grep -q 'mobile-menu-button' src/routes/__root.tsx
+          echo 'Home redesign, query route and mobile navigation smoke: OK'
+          echo 'TanStack SSR routes and Vercel API bridge: OK'
+      - name: Verify TanStack on deployed Vercel HTTPS
+        env:
+          URL: https://encontreumtecnico-tanstack-1j3m4l9gw-msolus.vercel.app
+        run: |
+          set -euo pipefail
+          for path in / /cadastro /galeria /cliente /clientes /atividades /acompanhar /meu-perfil /admin /tecnico/alan-nascimento /illustrations/hero-tech.svg /logo-original.webp /favicon-original.webp /api/health; do
+            code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/live-page -w '%{http_code}' "$URL$path")
+            echo "TanStack Vercel $path HTTP $code"
+            test "$code" = 200 || exit 1
+          done
+          echo 'TanStack Vercel public deployment: OK'
+      - name: Verify stable production TanStack address
+        env:
+          URL: https://encontreumtecnico-tanstack.vercel.app
+        run: |
+          set -euo pipefail
+          for path in / /cadastro /galeria /cliente /clientes /atividades /acompanhar /meu-perfil /admin /tecnico/alan-nascimento /illustrations/hero-tech.svg /logo-original.webp /favicon-original.webp /api/health; do
+            code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/prod-page -w '%{http_code}' "$URL$path")
+            echo "TanStack Production $path HTTP $code"
+            test "$code" = 200 || exit 1
+          done
+          code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/live-search -w '%{http_code}' "$URL/galeria?q=notebook&city=Curitiba")
+          echo "Live shared search query HTTP $code"
+          test "$code" = 200
+          code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/new-home -w '%{http_code}' "$URL/")
+          test "$code" = 200
+          grep -q 'Pular para o conteúdo' /tmp/new-home
+          grep -q 'Precisa de um técnico?' /tmp/new-home
+          code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/new-search -w '%{http_code}' "$URL/galeria?q=manutencao&city=Sao%20Jose%20dos%20Pinhais")
+          test "$code" = 200
+          grep -q 'Encontre um técnico para você' /tmp/new-search
+          code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/new-uuid -w '%{http_code}' "$URL/tecnico/e99a8655-7e4a-4319-a54c-4ab33164109c")
+          test "$code" = 200
+          echo 'Public mobile accessibility, shared accent-insensitive search and UUID technician route: OK'
+          echo 'TanStack stable production alias: OK'

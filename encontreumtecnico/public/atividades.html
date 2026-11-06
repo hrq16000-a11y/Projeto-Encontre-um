@@ -1,0 +1,28 @@
+<!doctype html><html lang="pt-BR"><head><link rel="icon" type="image/webp" href="/assets/favicon-original.webp"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#12375f"><title>Solicitações de serviços | Encontre um Técnico</title><link rel="stylesheet" href="/assets/base.css"></head><body><header><nav><a class="logo" href="/" aria-label="Encontre um Técnico"><img src="/assets/logo-original.webp" width="260" height="39" alt="Encontre um Técnico" decoding="async" style="max-width:230px;height:auto;object-fit:contain"/></a><div class="links"><a href="/galeria">Técnicos</a><a href="/clientes">Clientes</a><a href="/atividades">Solicitações</a><a href="/cliente">Área do cliente</a><a href="/cadastro">Sou técnico</a></div></nav></header><main>
+<h1>Serviços solicitados por clientes</h1><p class="muted">Solicitações reais enviadas por clientes cadastrados e aprovadas pela administração. Os técnicos e clientes negociam diretamente.</p>
+<div class="panel toolbar"><label>Especialidade / palavra-chave<input id="filter" type="search" placeholder="Ex.: manutenção de notebook"></label><label>Cidade<input id="city" type="search" placeholder="Ex.: Curitiba"></label></div>
+<div id="state" class="notice" role="status">Consultando solicitações publicadas…</div><div id="list" class="grid"></div>
+<div class="actions"><button id="more" hidden>Carregar mais solicitações</button><a href="/cliente" class="btn">Sou cliente: publicar solicitação</a></div></main><footer>Ambiente de homologação · O <a href="https://encontreumtecnico.com/">portal WordPress original</a> continua funcionando.</footer><script type="module">const $=id=>document.getElementById(id),all=[];let cursor=null;
+const view=()=>{
+ const q=$('filter').value.trim().toLocaleLowerCase('pt-BR'),city=$('city').value.trim().toLocaleLowerCase('pt-BR'),parent=$('list');
+ parent.replaceChildren();const items=all.filter(x=>(!q||[x.titulo,x.especialidade,x.descricao].join(' ').toLocaleLowerCase('pt-BR').includes(q))&&(!city||x.cidade.toLocaleLowerCase('pt-BR').includes(city)));
+ for(const item of items){
+  const card=document.createElement('article');card.className='tech';
+  const title=document.createElement('h2');title.textContent=item.titulo;
+  const meta=document.createElement('p');meta.textContent=[item.especialidade,item.cidade,item.uf,'Cliente: '+item.clienteNome].filter(Boolean).join(' · ');
+  const detail=document.createElement('p');detail.textContent=item.descricao;card.append(title,meta,detail);
+  if(item.whatsapp){const link=document.createElement('a');link.className='btn';link.target='_blank';link.rel='noopener noreferrer';const d=item.whatsapp.replace(/\D/g,'');link.href='https://wa.me/'+(d.startsWith('55')?d:'55'+d);link.textContent='Conversar com o cliente';card.append(link)}
+  parent.append(card);
+ }
+ $('state').textContent='Exibindo '+items.length+' solicitação(ões) aprovada(s).';
+};
+for(const id of ['filter','city'])$(id).addEventListener('input',view);
+$('more').onclick=load;
+async function load(){
+ $('more').disabled=true;
+ try{const response=await fetch('/api/solicitacoes'+(cursor?'?cursor='+encodeURIComponent(cursor):''));const data=await response.json();if(!response.ok)throw Error(data.erro||'Falha na consulta');
+ for(const item of data.solicitacoes||[])if(!all.some(x=>x.id===item.id))all.push(item);
+ cursor=data.cursor||null;$('more').hidden=!cursor;view();
+ }catch(error){$('state').textContent=error.message;}finally{$('more').disabled=false;}
+}
+load();</script></body></html>

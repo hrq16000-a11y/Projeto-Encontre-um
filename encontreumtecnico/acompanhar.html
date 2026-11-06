@@ -1,0 +1,14 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Acompanhar cadastro | Encontre um Técnico</title><link rel="stylesheet" href="/assets/base.css"></head><body>
+<header><nav><a href="/" class="logo">Encontre um Técnico</a><div class="links"><a href="/cadastro.html">Cadastrar técnico</a><a href="/galeria.html">Galeria</a></div></nav></header><main><h1>Acompanhe seu cadastro</h1><p class="muted">Utilize o protocolo e a chave de acompanhamento recebidos ao se cadastrar. Não compartilhe a chave.</p>
+<div class="panel"><form id="check"><label>Protocolo<input id="id" required autocomplete="off" maxlength="36" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label><label>Chave privada<input id="key" type="password" required autocomplete="off" minlength="40" placeholder="Chave gerada ao cadastrar"></label><button type="submit" id="submit">Consultar situação</button></form><div role="status" id="feedback" hidden class="notice"></div></div></main>
+<footer>Esta versão é de homologação. <a href="https://encontreumtecnico.com/">Portal atual</a></footer>
+<script>
+const f=document.getElementById('check'),msg=document.getElementById('feedback'),button=document.getElementById('submit');
+f.addEventListener('submit',async e=>{e.preventDefault();button.disabled=true;msg.hidden=true;try{
+ const res=await fetch('/api/status',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+document.getElementById('key').value.trim()},body:JSON.stringify({id:document.getElementById('id').value.trim()})});
+ const data=await res.json();if(!res.ok)throw Error(data.erro||'Consulta indisponível');
+ msg.textContent=data.estado==='aprovado'?'Seu perfil foi aprovado e já pode aparecer na galeria.':'Seu cadastro está salvo e aguarda revisão administrativa.';
+ msg.className='notice success';msg.hidden=false;
+ }catch(err){msg.textContent=err.message;msg.className='notice error';msg.hidden=false;}finally{button.disabled=false;}
+});
+</script></body></html>

@@ -1,0 +1,39 @@
+<!doctype html><html lang="pt-BR"><head><link rel="icon" type="image/webp" href="/assets/favicon-original.webp"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#12375f"><title>Moderação de clientes e serviços | Encontre um Técnico</title><link rel="stylesheet" href="/assets/base.css"></head><body><header><nav><a class="logo" href="/" aria-label="Encontre um Técnico"><img src="/assets/logo-original.webp" width="260" height="39" alt="Encontre um Técnico" decoding="async" style="max-width:230px;height:auto;object-fit:contain"/></a><div class="links"><a href="/galeria">Técnicos</a><a href="/clientes">Clientes</a><a href="/atividades">Solicitações</a><a href="/cliente">Área do cliente</a><a href="/cadastro">Sou técnico</a></div></nav></header><main>
+<h1>Moderação de clientes e solicitações</h1><p class="muted">Área administrativa reservada. Cadastros antigos do WordPress não estão disponíveis nesta fila.</p>
+<section class="panel"><form id="auth"><label>Chave administrativa do ambiente Vercel<input id="token" type="password" required minlength="24" autocomplete="off"></label><button type="submit">Acessar moderação</button></form><div id="status" class="notice" role="status" hidden></div></section>
+<section id="workspace" hidden>
+<div class="panel"><h2>Fila de aprovação</h2><div class="actions"><button id="clients" type="button">Clientes pendentes</button><button id="requests" type="button" class="outline">Solicitações pendentes</button><a href="/admin" class="btn outline">Técnicos pendentes</a></div><div id="queue" class="grid"></div><button id="more" hidden>Carregar mais</button></div>
+</section></main><footer>Ambiente de homologação · O <a href="https://encontreumtecnico.com/">portal WordPress original</a> continua funcionando.</footer><script type="module">const $=id=>document.getElementById(id);let key='',tipo='cliente',cursor=null;
+function notice(message,ok=true){$('status').className='notice'+(ok?' success':' error');$('status').textContent=message;$('status').hidden=false}
+async function api(url,body=null,method='GET'){
+ const r=await fetch(url,{method,headers:{Authorization:'Bearer '+key,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});
+ const d=await r.json();if(!r.ok)throw Error(d.erro||'Não foi possível concluir');return d;
+}
+async function load(reset=true){
+ if(reset){cursor=null;$('queue').replaceChildren();}
+ try {
+  const result=await api('/api/admin-portal?tipo='+tipo+(cursor?'&cursor='+encodeURIComponent(cursor):''));cursor=result.cursor||null;$('more').hidden=!cursor;
+  notice(result.pendentes.length+' registro(s) neste lote, aguardando revisão.');
+  for(const record of result.pendentes){
+   const card=document.createElement('article');card.className='tech';
+   const title=document.createElement('h2');title.textContent=record.nome||record.titulo;
+   const detail=document.createElement('p');detail.textContent=[record.setor||record.especialidade,record.cidade,record.uf,record.descricao].filter(Boolean).join(' · ');
+   const extra=document.createElement('p');extra.textContent=tipo==='cliente'?[record.email,record.whatsapp].filter(Boolean).join(' · '):'Solicitado por: '+record.clienteNome;
+   const actions=document.createElement('div');actions.className='actions';
+   for(const [action,label] of [['aprovar','Aprovar'],['rejeitar','Rejeitar']]){
+    const btn=document.createElement('button');btn.textContent=label;if(action==='rejeitar')btn.className='outline';
+    btn.onclick=async()=>{
+     if(!confirm(label+' este registro?'))return;btn.disabled=true;
+     try{await api('/api/admin-portal',{tipo,id:record.id,acao:action},'POST');card.remove();notice('Registro '+label.toLowerCase()+' com sucesso.');}
+     catch(err){notice(err.message,false);btn.disabled=false}
+    };
+    actions.append(btn);
+   }
+   card.append(title,detail,extra,actions);$('queue').append(card);
+  }
+ }catch(err){notice(err.message,false);}
+}
+$('auth').onsubmit=async e=>{e.preventDefault();key=$('token').value;$('token').value='';try{await api('/api/admin-portal?tipo=cliente');await load();$('auth').hidden=true;$('workspace').hidden=false;}catch(err){notice(err.message,false);key='';$('workspace').hidden=true;}};
+$('clients').onclick=()=>{tipo='cliente';$('clients').className='';$('requests').className='outline';load()};
+$('requests').onclick=()=>{tipo='solicitacao';$('clients').className='outline';$('requests').className='';load()};
+$('more').onclick=()=>load(false);</script></body></html>

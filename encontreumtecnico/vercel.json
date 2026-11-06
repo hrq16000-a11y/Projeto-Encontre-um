@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/cadastro",
+      "destination": "/cadastro.html"
+    },
+    {
+      "source": "/galeria",
+      "destination": "/galeria.html"
+    },
+    {
+      "source": "/cliente",
+      "destination": "/cliente.html"
+    },
+    {
+      "source": "/clientes",
+      "destination": "/clientes.html"
+    },
+    {
+      "source": "/atividades",
+      "destination": "/atividades.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/admin-portal",
+      "destination": "/admin-portal.html"
+    },
+    {
+      "source": "/acompanhar",
+      "destination": "/acompanhar.html"
+    },
+    {
+      "source": "/meu-perfil",
+      "destination": "/meu-perfil.html"
+    }
+  ]
+}

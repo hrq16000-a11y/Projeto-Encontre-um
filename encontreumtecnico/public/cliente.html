@@ -1,0 +1,86 @@
+<!doctype html><html lang="pt-BR"><head><link rel="icon" type="image/webp" href="/assets/favicon-original.webp"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#12375f"><title>Área do cliente | Encontre um Técnico</title><link rel="stylesheet" href="/assets/base.css"></head><body><header><nav><a class="logo" href="/" aria-label="Encontre um Técnico"><img src="/assets/logo-original.webp" width="260" height="39" alt="Encontre um Técnico" decoding="async" style="max-width:230px;height:auto;object-fit:contain"/></a><div class="links"><a href="/galeria">Técnicos</a><a href="/clientes">Clientes</a><a href="/atividades">Solicitações</a><a href="/cliente">Área do cliente</a><a href="/cadastro">Sou técnico</a></div></nav></header><main>
+<h1>Área do cliente</h1><p class="muted">Crie seu cadastro gratuito e publique solicitações de serviço. Negociação direta. Cadastros e solicitações passam por revisão antes de serem publicados.</p>
+<div class="twocol">
+<section class="panel"><h2>Novo cadastro de cliente</h2><form id="register">
+<div class="formgrid"><label>Seu nome ou empresa *<input name="nome" required minlength="3" maxlength="110" autocomplete="name"></label><label>Setor ou atividade *<input name="setor" required minlength="3" maxlength="110" placeholder="Ex.: escritório, comércio"></label></div>
+<div class="formgrid"><label>Cidade *<input name="cidade" required minlength="2" maxlength="90"></label><label>UF *<select name="uf" required><option value="">Selecione</option></select></label></div>
+<div class="formgrid"><label>E-mail privado *<input name="email" required type="email" maxlength="180" autocomplete="email"></label><label>WhatsApp de contato (opcional)<input name="whatsapp" inputmode="tel" maxlength="18"></label></div>
+<label>Apresentação (opcional)<textarea name="descricao" maxlength="800" placeholder="Conte um pouco sobre você ou sua empresa"></textarea></label>
+<div class="honeypot" aria-hidden="true"><input name="bot" autocomplete="off" tabindex="-1"></div>
+<label class="check"><input type="checkbox" name="aceite" required>Concordo com o cadastro e o tratamento dos dados para operar a plataforma.</label>
+<label class="check"><input type="checkbox" name="autorizacaoPublica" required>Autorizo exibir nome, setor, cidade e apresentação depois da aprovação. E-mail e WhatsApp não aparecerão no diretório de clientes.</label>
+<button id="send" type="submit">Criar cadastro</button>
+</form>
+<div class="notice" id="confirmation" hidden></div>
+</section>
+<section class="panel"><h2>Acessar meu cadastro</h2><p class="muted">Nesta prévia, utilize o protocolo e a chave gerados ao se cadastrar. Guarde a chave: ainda não há recuperação por e-mail ou Google.</p>
+<form id="login"><label>Protocolo do cliente<input id="clientId" required maxlength="36" autocomplete="off"></label><label>Chave privada<input id="clientKey" required type="password" minlength="48" maxlength="48" autocomplete="off"></label><button type="submit">Entrar na área do cliente</button></form>
+<div id="authStatus" class="notice" role="status" hidden></div>
+</section></div>
+<section id="dashboard" class="panel" hidden>
+<h2>Meu painel</h2><p id="welcome" class="notice" role="status"></p>
+<div class="actions"><button class="outline" id="logout" type="button">Encerrar acesso</button></div>
+<h3>Publicar solicitação</h3><p class="muted">Informe detalhes suficientes para que o técnico saiba o serviço necessário. Não inclua informações pessoais na descrição.</p>
+<form id="requestForm"><label>Título *<input name="titulo" required minlength="8" maxlength="110" placeholder="Ex.: Instalar rede cabeada na loja"></label>
+<div class="formgrid"><label>Especialidade *<input name="especialidade" required minlength="3" maxlength="110" placeholder="Ex.: redes e cabeamento"></label><label>Cidade *<input name="cidade" required minlength="2" maxlength="90"></label></div>
+<label>UF *<select name="uf" required><option value="">Selecione</option></select></label>
+<label>Descrição do serviço *<textarea name="descricao" required minlength="20" maxlength="1200" placeholder="O que precisa fazer? Qual o tipo de equipamento?"></textarea></label>
+<label class="check"><input type="checkbox" name="exibirContato">Autorizo exibir meu WhatsApp profissional nesta solicitação após a aprovação.</label>
+<label class="check"><input type="checkbox" name="aceite" required>Autorizo a publicação desta solicitação para profissionais independentes.</label>
+<button id="publish" type="submit">Enviar para aprovação</button></form>
+<h3>Minhas solicitações</h3><p class="muted">Registros pendentes ou publicados; é possível excluí-los. Solicitações rejeitadas deixam de aparecer nesta lista.</p>
+<div id="mine" class="grid"></div><div role="status" id="dashboardStatus" class="notice" hidden></div>
+</section></main><footer>Ambiente de homologação · O <a href="https://encontreumtecnico.com/">portal WordPress original</a> continua funcionando.</footer><script type="module">const ufList='AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO'.split(' ');
+for(const select of document.querySelectorAll('select[name="uf"]'))for(const code of ufList){const opt=document.createElement('option');opt.value=code;opt.textContent=code;select.append(opt);}
+const $=id=>document.getElementById(id);let id='',key='';
+const status=(target,message,ok=true)=>{target.className='notice'+(ok?' success':' error');target.textContent=message;target.hidden=false};
+async function api(url,body,authorization,method='POST'){
+ const response=await fetch(url,{method,headers:{'Content-Type':'application/json',...(authorization?{'Authorization':'Bearer '+authorization}:{})},body:JSON.stringify(body)});
+ const result=await response.json();if(!response.ok)throw Error(result.erro||'Não foi possível processar a solicitação.');return result;
+}
+$('register').addEventListener('submit',async e=>{
+ e.preventDefault();$('send').disabled=true;
+ const form=new FormData(e.target),data=Object.fromEntries(form.entries());
+ data.aceite=e.target.elements.aceite.checked;data.autorizacaoPublica=e.target.elements.autorizacaoPublica.checked;data.acao='cadastro';
+ try{
+ const response=await api('/api/cliente',data);
+ $('register').hidden=true;const card=$('confirmation');card.replaceChildren();
+ const text=document.createElement('p');text.textContent='Seu cadastro foi gravado e aguarda revisão. Copie e guarde este protocolo e a chave privada:';
+ const code=document.createElement('pre');code.textContent='Protocolo: '+response.id+'\nChave: '+response.chave;code.className='key';
+ const copy=document.createElement('button');copy.textContent='Copiar protocolo e chave';copy.onclick=()=>navigator.clipboard.writeText(code.textContent);
+ const help=document.createElement('p');help.textContent='Os dados não são enviados por e-mail nesta versão. A chave permite entrar na área do cliente.';
+ card.append(text,code,copy,help);card.hidden=false;
+ $('clientId').value=response.id;$('clientKey').value=response.chave;
+ }catch(error){status($('confirmation'),error.message,false);}finally{$('send').disabled=false;}
+});
+async function loadMine(){
+ const data=await api('/api/minhas-solicitacoes',{clienteId:id},key);
+ const area=$('mine');area.replaceChildren();
+ for(const entry of data.solicitacoes){
+  const card=document.createElement('article');card.className='tech';
+  const h=document.createElement('h3');h.textContent=entry.titulo;
+  const p=document.createElement('p');p.textContent=entry.descricao;
+  const s=document.createElement('div');s.className='muted';s.textContent='Situação: '+entry.estado;
+  const deleteButton=document.createElement('button');deleteButton.className='outline';deleteButton.textContent='Excluir solicitação';
+  deleteButton.onclick=async()=>{if(!confirm('Excluir definitivamente esta solicitação?'))return;deleteButton.disabled=true;try{await api('/api/minhas-solicitacoes',{clienteId:id,id:entry.id},key,'DELETE');await loadMine();}catch(err){status($('dashboardStatus'),err.message,false);deleteButton.disabled=false}};
+  card.append(h,s,p,deleteButton);area.append(card);
+ }
+ if(!data.solicitacoes.length)status($('dashboardStatus'),'Nenhuma solicitação registrada neste cadastro.');
+ if(data.temMais)status($('dashboardStatus'),'Exibindo apenas as primeiras solicitações. A listagem completa estará disponível na migração definitiva.',false);
+}
+$('login').addEventListener('submit',async e=>{
+ e.preventDefault();id=$('clientId').value.trim();key=$('clientKey').value.trim();
+ try{const data=await api('/api/cliente',{id},key);$('dashboard').hidden=false;$('clientKey').value='';
+ $('welcome').textContent='Cadastro: '+data.cliente.nome+' · Situação: '+data.estado;
+ const f=$('requestForm');f.elements.cidade.value=data.cliente.cidade;f.elements.uf.value=data.cliente.uf;
+ await loadMine();$('dashboard').scrollIntoView({behavior:'smooth'});
+ }catch(error){key='';$('dashboard').hidden=true;status($('authStatus'),error.message,false);}
+});
+$('requestForm').addEventListener('submit',async e=>{
+ e.preventDefault();$('publish').disabled=true;
+ const f=e.target,d=Object.fromEntries(new FormData(f).entries());d.aceite=f.elements.aceite.checked;d.exibirContato=f.elements.exibirContato.checked;d.clienteId=id;
+ try{const result=await api('/api/solicitacoes',d,key);status($('dashboardStatus'),'Solicitação recebida! Protocolo: '+result.id+'. Aguardando aprovação.');f.reset();await loadMine();}
+ catch(error){status($('dashboardStatus'),error.message,false);}finally{$('publish').disabled=false;}
+});
+$('logout').onclick=()=>{key='';id='';$('clientId').value='';$('clientKey').value='';$('dashboard').hidden=true;$('authStatus').hidden=true;window.scrollTo({top:0,behavior:'smooth'});};
+</script></body></html>
