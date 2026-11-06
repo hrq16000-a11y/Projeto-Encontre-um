@@ -163,4 +163,14 @@ jobs:
           code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/live-search -w '%{http_code}' "$URL/galeria?q=notebook&city=Curitiba")
           echo "Live shared search query HTTP $code"
           test "$code" = 200
+          code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/new-home -w '%{http_code}' "$URL/")
+          test "$code" = 200
+          grep -q 'Pular para o conteúdo' /tmp/new-home
+          grep -q 'Precisa de um técnico?' /tmp/new-home
+          code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/new-search -w '%{http_code}' "$URL/galeria?q=manutencao&city=Sao%20Jose%20dos%20Pinhais")
+          test "$code" = 200
+          grep -q 'Encontre um técnico para você' /tmp/new-search
+          code=$(curl -sSL --retry 2 --connect-timeout 7 --max-time 24 -o /tmp/new-uuid -w '%{http_code}' "$URL/tecnico/e99a8655-7e4a-4319-a54c-4ab33164109c")
+          test "$code" = 200
+          echo 'Public mobile accessibility, shared accent-insensitive search and UUID technician route: OK'
           echo 'TanStack stable production alias: OK'
