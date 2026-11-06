@@ -19,3 +19,9 @@ button:disabled{opacity:.6;cursor:not-allowed}.toolbar{display:flex;gap:12px;fle
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.key{overflow-wrap:anywhere;border-radius:8px;padding:12px;background:#e2ebf8;font-family:monospace}
 footer{padding:22px;text-align:center;color:#6d7c92}
 [hidden]{display:none!important}@media(max-width:620px){.formgrid{grid-template-columns:1fr}.panel{padding:18px}main{margin-top:28px}}
+
+.twocol{display:grid;grid-template-columns:1.1fr 1fr;gap:20px;align-items:start}
+.twocol .panel{margin-top:10px}
+.honeypot{position:absolute!important;left:-99999px!important;width:1px;height:1px;overflow:hidden}
+#workspace{margin-top:24px}
+@media(max-width:760px){.twocol{grid-template-columns:1fr}}
