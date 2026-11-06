@@ -93,6 +93,9 @@ jobs:
       - name: TypeScript typecheck TanStack routes
         working-directory: encontreumtecnico/tanstack
         run: npm run typecheck
+      - name: Test public directory and location transparency
+        working-directory: encontreumtecnico/tanstack
+        run: node --experimental-strip-types --test tests/directory.test.mjs
       - name: Verify original hero artwork in new build
         working-directory: encontreumtecnico/tanstack
         run: |
@@ -123,6 +126,11 @@ jobs:
           test "$code" = 200
 
           grep -q 'Precisa de um técnico?' /tmp/start-home
+          grep -q 'Pular para o conteúdo' /tmp/start-home
+          grep -q 'Perfis sem região' src/routes/galeria.tsx || grep -q 'perfis sem região' src/routes/galeria.tsx
+          code=$(curl -sSL --max-time 20 -o /tmp/new-approved-fallback -w '%{http_code}' 'http://127.0.0.1:3178/tecnico/e99a8655-7e4a-4319-a54c-4ab33164109c')
+          echo "New technician UUID route HTTP $code"
+          test "$code" = "200"
           code=$(curl -sSL --max-time 22 -o /tmp/search-page -w '%{http_code}' 'http://127.0.0.1:3178/galeria?q=notebook&city=Curitiba')
           echo "Gallery shared query HTTP $code"
           test "$code" = 200
