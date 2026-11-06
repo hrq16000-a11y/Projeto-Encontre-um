@@ -53,3 +53,19 @@ Estratégia: substituir sem alterar o WordPress nem DNS até reconciliação e h
 3. Implementação e homologação das operações ausentes antes de qualquer troca do domínio.
 
 Não apagar contas, cadastros ou dados originais, não publicar perfis fictícios, não alterar DNS sem autorização explícita, não publicar a prévia com indexação antes da migração completa.
+
+## Atualização da publicação Vercel — 06/11/2026
+
+- URL estável de homologação: https://encontreumtecnico-migracao-msolus.vercel.app/
+- Alias da Vercel associado ao deploy `dpl_EkLj6CK2QDPaTXHy6kjtHRxVzVQc` — estado READY, commit `3bc78c39339e6be01472ef4ba32ee9c85e61ae55`.
+- **22/22** testes unitários passaram.
+- E2E técnico aprovado: cadastro, armazenamento privado, consulta, moderação, galeria, edição/reaprovação e exclusão.
+- E2E cliente/solicitação aprovado: cadastro, autenticação por chave, aprovação de cliente, solicitação, revisão, exibição pública e exclusão.
+- Excluir cliente agora remove também suas solicitações vinculadas nos estados pendente e aprovado; validado com registro de teste isolado.
+- Páginas novas: `/cliente.html`, `/clientes.html`, `/atividades.html`, `/admin-portal.html`.
+- APIs: `/api/cliente`, `/api/clientes`, `/api/solicitacoes`, `/api/minhas-solicitacoes`, `/api/admin-portal`.
+- Checagem externa GitHub Actions `42164738475` passou em páginas, APIs públicas, estado do armazenamento, URLs únicas de técnicos (356 de duas fontes do sitemap) e acesso negado sem credenciais.
+- Não migrados: contas e logins WordPress, histórico das relações entre clientes/técnicos, mensagens, arquivos privados e provas de compatibilidade de URLs.
+- **A nova versão não substitui integralmente o WordPress.** Ainda não há Google OAuth, recuperação de chaves por e-mail, antispam robusto, nem banco transacional relacional para relações completas. O ambiente permanece `noindex` para não competir com o domínio original.
+- Administração nesta homologação utiliza `ADMIN_ACCESS_TOKEN` do ambiente Preview da Vercel; não exibir em código, logs ou respostas públicas. Para a passagem a produção, substituir por autenticação com contas e papéis e rotação de segredo.
+- Não alterar DNS nem publicar no domínio oficial até exportação/restauração e reconciliação de MySQL, upload de mídia, autenticação, SEO e jornadas.

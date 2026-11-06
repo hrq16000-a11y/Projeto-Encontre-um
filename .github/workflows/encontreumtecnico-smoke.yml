@@ -30,7 +30,7 @@ jobs:
         run: npm test
       - name: Read-only preview smoke (no fake registrations)
         env:
-          URL: https://encontreumtecnico-migracao-git-feat-encontreumtec-211d15-msolus.vercel.app
+          URL: https://encontreumtecnico-migracao-msolus.vercel.app
         run: |
           set -euo pipefail
           for path in / /cadastro.html /galeria.html /admin.html /acompanhar.html /meu-perfil.html /cliente.html /clientes.html /atividades.html /admin-portal.html /api/health /api/tecnicos /api/profissionais /api/clientes /api/solicitacoes; do
