@@ -45,6 +45,9 @@ jobs:
               html=open('/tmp/wp-directory',encoding='utf-8',errors='replace').read()
               paths=set(re.findall(r'href=["\x27]([^"\x27]+/tecnico/[^"\x27]+)',html,re.I))
               print('Origem diretório HTML bytes:',len(html.encode('utf-8')),'links tecnicos únicos:',len(paths))
+              anchors=re.findall(r'<a\\b[^>]*href=["\\x27][^"\\x27]*/tecnico/[^"\\x27]+["\\x27][^>]*>[\\s\\S]*?</a>',html,re.I)
+              print('Amostra de estrutura de links públicos:',[(re.sub(r'\\s+',' ',x)[:350]) for x in anchors[:2]])
+              print('Paginacao URL base exemplos:',list(dict.fromkeys(re.findall(r'href=["\\x27]([^"\\x27]*lista-de-tecnicos/\\?[^"\\x27]+)',html,re.I)))[:5])
           else: print('Origem diretório HTML indisponível')
           PY
       - name: Read-only preview smoke (no fake registrations)
