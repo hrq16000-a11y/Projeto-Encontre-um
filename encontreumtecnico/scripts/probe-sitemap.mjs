@@ -1,6 +1,6 @@
 // Only public GETs and minimal metadata.
 const root='https://encontreumtecnico.com';
-const routes=['/robots.txt','/sitemap_index.xml','/wp-sitemap.xml','/candidate-sitemap.xml','/tecnico-sitemap.xml','/wp-sitemap-posts-candidate-1.xml'];
+const routes=['/robots.txt','/sitemap_index.xml','/wp-sitemap.xml','/candidate-sitemap1.xml','/candidate-sitemap2.xml','/employer-sitemap1.xml','/employer-sitemap2.xml','/wp-sitemap-posts-candidate-1.xml'];
 for(const path of routes){
  try{
   const resp=await fetch(root+path,{signal:AbortSignal.timeout(6500),headers:{Accept:'application/xml,text/xml,text/plain'}});
