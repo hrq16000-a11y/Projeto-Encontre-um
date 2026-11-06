@@ -1,0 +1,53 @@
+name: Encontre um Técnico - validação de migração
+on:
+  push:
+    branches:
+      - feat/encontreumtecnico-migracao-vercel
+    paths:
+      - 'encontreumtecnico/**'
+      - '.github/workflows/encontreumtecnico-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020c
+        with:
+          node-version: '22'
+      - name: Install app dependencies
+        working-directory: encontreumtecnico
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Unit tests
+        working-directory: encontreumtecnico
+        run: npm test
+      - name: Read-only preview smoke (no fake registrations)
+        env:
+          URL: https://encontreumtecnico-migracao-d2u09l7ba-msolus.vercel.app
+        run: |
+          set -euo pipefail
+          for path in / /cadastro.html /galeria.html /admin.html /api/health /api/tecnicos; do
+            echo "GET $path"
+            code=$(curl -sSL --retry 3 --retry-delay 2 --connect-timeout 7 --max-time 22 -o /tmp/response -w '%{http_code}' "$URL$path")
+            test "$code" = "200" || { echo "Unexpected HTTP $code: $path"; exit 1; }
+            if [ "$path" = "/api/health" ]; then
+              cp /tmp/response /tmp/health.json
+            fi
+          done
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/health.json'))
+          assert d.get('cadastrosConfigurados') is True, "Vercel Blob não configurado no deploy"
+          assert d.get('adminConfigurado') is True, "Painel administrativo não configurado no deploy"
+          print("Health OK - armazenamento e administração habilitados")
+          PY
+          code=$(curl -sSL --connect-timeout 7 --max-time 22 -X POST -H 'Content-Type: application/json' -d '{"nome":"x"}' -o /tmp/invalid -w '%{http_code}' "$URL/api/cadastro")
+          test "$code" = "400" || { echo "Validation failure: expected HTTP 400, got $code"; exit 1; }
+          echo "Smoke checks passed, without writing a profile."
