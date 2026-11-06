@@ -23,8 +23,8 @@ export function extractPublicDirectory(html){
     const content=decode(found[2].replace(/<[^>]+>/g,' ')).replace(/\s+/g,' ').trim();
     const meaningful=content.length>=3&&content.length<=100&&!/^(ver|view|detalhes|perfil|profile|saiba mais)$/i.test(content);
     const imagem=publicImage(found[2]);
-    const existing=entries.get(slug)||{id:'wp-'+slug,nome:fallback,servico:'',cidade:'',descricao:'',url:ORIGIN+url.pathname,imagem:''};
-    if(meaningful)existing.nome=content.slice(0,100);
+    const existing=entries.get(slug)||{id:'wp-'+slug,nome:fallback,servico:'',cidade:'',descricao:'',url:ORIGIN+url.pathname,imagem:'',nomeInferido:true};
+    if(meaningful){existing.nome=content.slice(0,100);existing.nomeInferido=false;}
     if(imagem)existing.imagem=imagem;
     entries.set(slug,existing);
     if(entries.size>=100)break;
@@ -61,7 +61,7 @@ export function mergeSitemapDirectory(sitemaps, directory=[]) {
     const record=map.get(profile.url);
     if(record) map.set(profile.url,{...record,
       nome:profile.nome||record.nome, imagem:profile.imagem||record.imagem,
-      nomeInferido:!profile.nome, servico:profile.servico||record.servico,
+      nomeInferido:profile.nomeInferido!==false, servico:profile.servico||record.servico,
       descricao:profile.descricao||record.descricao, cidade:profile.cidade||record.cidade
     });
   }

@@ -22,7 +22,7 @@ test('sitemap vazio e conteúdo HTML inválido não fabricam perfis',()=>{
 test('galeria combina sitemaps e enriquece somente mesmo link público',()=>{
  const p=extractCandidateSitemap(xml);
  const merged=mergeSitemapDirectory([p.slice(0,1),p.slice(1)],[
-   {id:'wp-alan-nascimento',nome:'Alan Nascimento',url:p[0].url,imagem:'https://encontreumtecnico.com/wp-content/uploads/a.jpg'}
+   {id:'wp-alan-nascimento',nome:'Alan Nascimento',nomeInferido:false,url:p[0].url,imagem:'https://encontreumtecnico.com/wp-content/uploads/a.jpg'}
  ]);
  assert.equal(merged.length,2);
  assert.equal(merged[0].nomeInferido,false);
