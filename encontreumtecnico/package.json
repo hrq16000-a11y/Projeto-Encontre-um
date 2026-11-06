@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node --test && node scripts/blob-smoke.mjs && node scripts/registration-smoke.mjs && node scripts/portal-smoke.mjs",
-    "test": "node --test"
+    "build": "node --test lib/*.test.js && node scripts/blob-smoke.mjs && node scripts/registration-smoke.mjs && node scripts/portal-smoke.mjs",
+    "test": "node --test lib/*.test.js"
   },
   "dependencies": {
     "@vercel/blob": "^2.3.1"
