@@ -1,5 +1,6 @@
 import {createFileRoute,Link} from '@tanstack/react-router'
 import {createServerFn} from '@tanstack/react-start'
+import {ServiceIcon} from '../components/ServiceIcon'
 
 type Profile={id:string;nome:string;descricao:string;cidade:string;uf:string;especialidade:string;url:string;imagem:string;nomeInferido:boolean;unavailable?:boolean}
 const BACKEND='https://encontreumtecnico-migracao-git-feat-encontreumtec-211d15-msolus.vercel.app'
@@ -49,6 +50,18 @@ export const Route=createFileRoute('/tecnico/$slug')({
 })
 function TechnicianProfile(){
  const p=Route.useLoaderData()
- if(!p)return <main className="container"><h1>Perfil não disponível nesta prévia</h1><p className="subtle">Os cadastros históricos ainda estão sendo sincronizados. Consulte a galeria de técnicos.</p><Link className="btn" to="/galeria" search={{q:'',city:''}}>Voltar à galeria</Link></main>
- return <main className="container"><div className="actions"><Link to="/galeria" search={{q:'',city:''}}>Galeria de técnicos</Link></div><section className="panel"><div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(250px,1fr))',alignItems:'start',gap:26}}><div>{p.imagem?<img src={p.imagem} alt={'Imagem pública do perfil de '+p.nome} style={{width:'100%',maxHeight:300,objectFit:'contain',background:'#f1f5fb',borderRadius:14}}/>:null}</div><div><p className="eyebrow" style={{color:'#1571cc'}}>Perfil profissional público</p><h1>{p.nome}</h1>{p.nomeInferido?<p className="small">Nome identificado pelo endereço original. Dados completos dependem da importação WordPress.</p>:null}{[p.especialidade,p.cidade,p.uf].filter(Boolean).length?<p className="subtle">{[p.especialidade,p.cidade,p.uf].filter(Boolean).join(' · ')}</p>:null}<p>{p.descricao||'Este perfil existe no diretório público. Os detalhes e opções de contato serão sincronizados do portal original.'}</p><div className="actions"><a className="btn" href={p.url} target="_blank" rel="noopener noreferrer">Ver contato e perfil original</a><Link className="btn secondary" to="/galeria" search={{q:'',city:''}}>Ver mais profissionais</Link></div></div></div></section><div className="notice">Perfil público reconstruído a partir de informações já divulgadas na origem. Não exibe dados pessoais privados nem avaliações inventadas.</div></main>
+ if(!p)return <main className="container"><div className="info-empty"><h1>Perfil em atualização</h1><p>Não foi possível localizar este perfil na prévia. Consulte os profissionais disponíveis na galeria.</p><Link to="/galeria" search={{q:'',city:''}} className="btn">Voltar à galeria</Link></div></main>
+ const details=[p.especialidade,p.cidade,p.uf].filter(Boolean)
+ return <main className="professional-profile"><div className="container">
+ <nav className="breadcrumb" aria-label="Você está aqui"><Link to="/">Início</Link><ServiceIcon name="chevron" size={14}/><Link to="/galeria" search={{q:'',city:''}}>Técnicos</Link><ServiceIcon name="chevron" size={14}/><span>{p.nome}</span></nav>
+ <div className="professional-profile-card">
+ <div className="professional-cover"><div className="cover-orbit first"/><div className="cover-orbit second"/><div className="cover-icon"><ServiceIcon name="laptop" size={65}/></div></div>
+ <div className="professional-profile-body"><div className="professional-avatar">{p.imagem?<img src={p.imagem} loading="lazy" alt={'Imagem pública do perfil de '+p.nome}/>:<ServiceIcon name="user" size={55}/>}</div><span className="professional-label">PERFIL PÚBLICO DA ORIGEM WORDPRESS</span><h1>{p.nome}</h1>{details.length?<p className="professional-location"><ServiceIcon name="location" size={18}/>{details.join(' • ')}</p>:<p className="professional-location">Informações de localização ainda não estruturadas</p>}
+ {p.nomeInferido?<p className="directory-warning">Nome baseado no endereço do perfil. Confirme as informações na origem.</p>:null}
+ <p className="professional-description">{p.descricao||'Este profissional possui um perfil público no portal de origem. Os detalhes completos do cadastro e formas de contato ainda estão sendo incorporados nesta versão.'}</p>
+ <div className="professional-actions"><a href={p.url} target="_blank" rel="noopener noreferrer" className="btn">Abrir perfil e contato original <ServiceIcon name="arrow" size={17}/></a><Link to="/galeria" search={{q:'',city:''}} className="btn secondary">Ver outros técnicos</Link></div></div>
+ </div>
+ <div className="professional-detail-grid"><div className="professional-detail-card"><span><ServiceIcon name="briefcase" size={23}/></span><div><h2>Especialidade</h2><p>{p.especialidade||'Consulte o perfil original'}</p></div></div><div className="professional-detail-card"><span><ServiceIcon name="location" size={23}/></span><div><h2>Região de atendimento</h2><p>{p.cidade?[p.cidade,p.uf].filter(Boolean).join(' / '):'Não informada na base pública importada'}</p></div></div><div className="professional-detail-card"><span><ServiceIcon name="shield" size={23}/></span><div><h2>Informações verificáveis</h2><p>Consulte os dados completos e de contato no portal original.</p></div></div></div>
+ <aside className="professional-note"><ServiceIcon name="shield" size={22}/><p>Este perfil foi reconstruído exclusivamente a partir de informações públicas do WordPress. A exibição não representa verificação de documentos ou certificações, nem implica avaliação ou garantia de atendimento pela plataforma.</p></aside>
+ </div></main>
 }
