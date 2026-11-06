@@ -1,7 +1,8 @@
+import type {ReactNode} from 'react'
 type Kind='laptop'|'desktop'|'wifi'|'printer'|'shield'|'server'|'smartphone'|'support'|'search'|'location'|'arrow'|'check'|'menu'|'chevron'|'user'|'briefcase'|'spark';
 export function ServiceIcon({name,size=24,className=''}:{name:Kind;size?:number;className?:string}){
  const common={fill:'none',stroke:'currentColor',strokeWidth:1.8,strokeLinecap:'round' as const,strokeLinejoin:'round' as const};
- const paths:Record<Kind,React.ReactNode>={
+ const paths:Record<Kind,ReactNode>={
  laptop:<><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M2 20h20l-2-4H4l-2 4Z M9 19h6"/></>,
  desktop:<><rect x="3" y="3" width="18" height="13" rx="2"/><path d="M12 16v5 M7 21h10 M7 8h10"/></>,
  wifi:<><path d="M2 9a16 16 0 0 1 20 0 M5 12a11 11 0 0 1 14 0 M8 15a6 6 0 0 1 8 0"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></>,
