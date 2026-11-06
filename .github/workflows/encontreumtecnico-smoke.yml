@@ -28,6 +28,25 @@ jobs:
       - name: Unit tests
         working-directory: encontreumtecnico
         run: npm test
+      - name: Probe original WordPress public directory (metadata only)
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          curl -sSL --max-time 14 --retry 1 -A 'EncontreUmTecnico-Migracao/1.0' 'https://encontreumtecnico.com/wp-json/wp/v2/types' -o /tmp/wp-types || true
+          curl -sSL --max-time 14 --retry 1 -A 'EncontreUmTecnico-Migracao/1.0' 'https://encontreumtecnico.com/lista-de-tecnicos/' -o /tmp/wp-directory || true
+          python - <<'PY'
+          import json,re,os
+          try:
+              j=json.load(open('/tmp/wp-types'))
+              names=[(key,val.get('rest_base','')) for key,val in j.items() if re.search(r'candidate|tecnic|profission|jobsearch|listing',key,re.I)]
+              print('Origem REST candidatos tipos:',names)
+          except Exception: print('Origem REST tipos: indisponível')
+          if os.path.exists('/tmp/wp-directory'):
+              html=open('/tmp/wp-directory',encoding='utf-8',errors='replace').read()
+              paths=set(re.findall(r'href=["\x27]([^"\x27]+/tecnico/[^"\x27]+)',html,re.I))
+              print('Origem diretório HTML bytes:',len(html.encode('utf-8')),'links tecnicos únicos:',len(paths))
+          else: print('Origem diretório HTML indisponível')
+          PY
       - name: Read-only preview smoke (no fake registrations)
         env:
           URL: https://encontreumtecnico-migracao-d2u09l7ba-msolus.vercel.app
