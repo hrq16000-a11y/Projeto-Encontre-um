@@ -352,3 +352,79 @@ button{cursor:pointer}
  .directory-join{padding:27px;flex-direction:column;align-items:flex-start}
  .directory-info{padding:17px}
 }
+
+
+/* Technician onboarding and service request experience */
+.signup-page{background:linear-gradient(#f4f9ff,#fff);padding:32px 0 80px;min-height:78vh}
+.breadcrumb{display:flex;align-items:center;gap:7px;font-size:12px;color:#6c8ba3;padding:4px 0 26px}
+.breadcrumb a{color:#1d75b8;text-decoration:none}
+.signup-header{display:flex;align-items:start;gap:19px;padding-bottom:25px}
+.signup-icon{height:65px;width:65px;flex:0 0 65px;border-radius:18px;background:#dfeeff;color:#106dbc;display:grid;place-items:center}
+.signup-header h1{font-size:clamp(29px,3.4vw,41px);max-width:660px;letter-spacing:-.035em;line-height:1.17;margin:0 0 12px}
+.signup-header p:not(.section-eyebrow){color:#647c93;line-height:1.65;font-size:14.5px;max-width:680px}
+.signup-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(275px,.75fr);gap:28px;align-items:start}
+.signup-form-area{min-width:0}
+.signup-form,.signup-success{background:#fff;border:1px solid #e0e9f4;border-radius:21px;padding:31px;box-shadow:0 15px 35px #153e5b0c}
+.form-section-head{display:flex;align-items:center;gap:13px;margin-bottom:22px}
+.form-section-head.secondary-head{border-top:1px solid #e8eff6;margin-top:26px;padding-top:24px}
+.form-step{border-radius:12px;background:#e6f4ff;color:#166dbc;font-size:15px;font-weight:850;display:grid;place-items:center;flex:0 0 39px;height:39px}
+.form-section-head h2{margin:0 0 4px;font-size:20px}
+.form-section-head p{color:#788ea2;font-size:12px;margin:0;line-height:1.5}
+.signup-form .two{margin-bottom:18px}
+.signup-form .field{font-size:13px;color:#344f66}
+.signup-form .field input,.signup-form .field select,.signup-form .field textarea{margin-top:6px;border:1px solid #dbe5ef;border-radius:10px;background:#fbfdff;padding:13px;min-height:47px}
+.signup-form .field input:focus,.signup-form .field textarea:focus,.signup-form .field select:focus{border-color:#429de2;outline:2px solid #c5e5ff;outline-offset:0}
+.signup-form .field textarea{min-height:126px}
+.input-help{font-size:11.5px;color:#8b9fb0;font-weight:440;margin-top:4px}
+.signup-consent{border-radius:14px;background:#f2f8ff;border:1px solid #d9e9f9;padding:17px;display:grid;gap:15px}
+.signup-consent .check{font-size:12.7px;color:#4d6880;font-weight:560;line-height:1.6}
+.signup-consent input{accent-color:#1179c9;margin-top:3px}
+.signup-submit{width:100%;margin-top:22px;padding:17px}
+.signup-privacy{display:flex;gap:8px;align-items:flex-start;color:#8397a8;font-size:11.5px;line-height:1.6}
+.signup-privacy svg{color:#39a996;flex:0 0 auto}
+.signup-aside{position:sticky;top:116px;border-radius:22px;background:linear-gradient(150deg,#0b345a,#0a567c);padding:32px;color:#fff;overflow:hidden}
+.aside-art{height:175px;border:1px solid #ffffff40;background:radial-gradient(circle at 35% 30%,#4db5d237,#1d70a12d);border-radius:19px;display:grid;place-items:center;color:#75e7db;position:relative;margin-bottom:23px}
+.aside-floating{position:absolute;right:28px;top:25px;background:#fff;color:#1179cb;border-radius:11px;padding:11px;transform:rotate(13deg)}
+.signup-aside h2{font-size:25px;line-height:1.25;letter-spacing:-.024em;margin:0 0 13px}
+.signup-aside>p{font-size:13px;line-height:1.75;color:#bed6e8}
+.aside-points{display:grid;gap:16px;border-top:1px solid #ffffff25;padding:21px 0;margin-top:20px}
+.aside-points span{display:flex;gap:9px;align-items:center;font-size:13px;font-weight:680;color:#edf9ff}
+.aside-points svg{color:#68ebd5}
+.aside-notice{margin-top:13px;background:#ffffff17;border:1px solid #ffffff36;padding:15px;border-radius:13px;line-height:1.6;font-size:12px;color:#c9e3ed}
+.aside-notice a{color:#8dfbeb;font-weight:790}
+.signup-success{text-align:left;padding:44px 34px}
+.success-icon{height:64px;width:64px;border-radius:19px;display:grid;place-items:center;background:#defaf1;color:#109a81;margin-bottom:25px}
+.signup-success h2{font-size:26px}
+.signup-success>p{color:#6a8095;line-height:1.75}
+.access-credentials{display:grid;gap:12px;margin:25px 0}
+.access-credentials label{font-size:12px;font-weight:820;color:#5e7a91}
+.secret-value{border-radius:10px;background:#eef4fb;border:1px solid #d9e6f1;padding:13px;word-break:break-all;font-size:13px;font-weight:650;color:#143d61;margin-top:6px}
+
+/* Activities: real requests only */
+.requests-page{padding:0 0 65px;background:#f8fbff;min-height:70vh}
+.requests-hero{background:radial-gradient(circle at 75% 30%,#2d8dc038,transparent 45%),linear-gradient(125deg,#092a4b,#114d79);color:#fff;padding:58px 0 102px}
+.requests-hero .section-eyebrow{color:#63e3d1!important}
+.requests-hero h1{color:#fff;font-size:clamp(32px,4.2vw,48px);font-weight:850;letter-spacing:-.035em}
+.requests-hero p:not(.section-eyebrow){max-width:680px;color:#d4e5f4;line-height:1.7;font-size:15px;margin-bottom:24px}
+.requests-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:16px;border-radius:19px;background:#fff;border:1px solid #dfeaf3;padding:20px;box-shadow:0 18px 32px #19425b1c;position:relative;margin-top:-47px}
+.requests-toolbar .field>span{display:flex;align-items:center;gap:7px;color:#375a75}
+.requests-toolbar .field svg{color:#1980c3}
+.requests-toolbar input{margin-top:8px;border-color:#d7e5f1;background:#fbfdff}
+.requests-count{font-size:12px;color:#7e92a4;margin:34px 0 18px}
+.requests-count strong{font-size:17px;color:#123858}
+.request-market-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.request-market-card{padding:24px;background:#fff;border:1px solid #e2eaf2;border-radius:18px;box-shadow:0 10px 23px #1040630c;display:flex;flex-direction:column}
+.request-market-top span{display:inline-flex;align-items:center;gap:7px;background:#eaf8f6;color:#0b9987;border-radius:25px;font-size:11px;font-weight:770;padding:8px 12px}
+.request-market-card h2{font-size:20px;margin:17px 0 12px}
+.request-market-tags{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.request-market-tags>span{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:720;color:#1c74b3;background:#eaf4fd;border-radius:9px;padding:7px 11px}
+.request-market-card>p{color:#697f94;line-height:1.65;min-height:65px;font-size:13px}
+.request-market-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px;margin-top:auto;border-top:1px solid #ebf1f7;padding-top:15px;font-size:12px;color:#7a8fa1}
+.request-market-footer .btn{font-size:12px;padding:10px 14px}
+.requests-empty{border:1px dashed #c7d9e8;border-radius:20px;background:#fff;text-align:center;padding:58px 25px;max-width:800px;margin:auto}
+.requests-empty-art{height:95px;width:95px;border-radius:26px;display:grid;place-items:center;background:#e5f4ff;color:#2186c3;margin:0 auto 23px}
+.requests-empty h2{font-size:26px;letter-spacing:-.03em}
+.requests-empty p{max-width:530px;color:#71879c;line-height:1.7;margin:10px auto 22px;font-size:14px}
+.requests-empty .actions{justify-content:center}
+@media(max-width:850px){.signup-layout{grid-template-columns:1fr}.signup-aside{position:static;display:grid;grid-template-columns:150px 1fr;gap:8px 24px}.aside-art{grid-row:1/4;height:160px}.signup-aside h2{font-size:22px}.aside-points{grid-column:1/-1}.aside-notice{grid-column:1/-1}}
+@media(max-width:600px){.signup-header{flex-direction:column;gap:12px}.signup-header h1{font-size:30px}.signup-form,.signup-success{padding:23px 19px}.signup-aside{display:block;padding:25px}.aside-art{height:150px}.request-market-grid,.requests-toolbar{grid-template-columns:1fr}.requests-hero{padding:44px 0 89px}.requests-hero h1{font-size:36px}.requests-empty{padding:37px 19px}.requests-empty h2{font-size:23px}.request-market-card{padding:19px}}
