@@ -32,12 +32,16 @@ jobs:
         working-directory: encontreumtecnico
         continue-on-error: true
         run: node scripts/probe-brand.mjs
+      - name: Capture authorized original logo and favicon bytes
+        working-directory: encontreumtecnico
+        continue-on-error: true
+        run: node scripts/asset-capture.mjs
       - name: Read-only preview smoke (no fake registrations)
         env:
           URL: https://encontreumtecnico-migracao-msolus.vercel.app
         run: |
           set -euo pipefail
-          for path in / /cadastro.html /galeria.html /admin.html /acompanhar.html /meu-perfil.html /cliente.html /clientes.html /atividades.html /admin-portal.html /api/health /api/tecnicos /api/profissionais /api/clientes /api/solicitacoes; do
+          for path in / /cadastro /galeria /admin /acompanhar /meu-perfil /cliente /clientes /atividades /admin-portal /api/health /api/tecnicos /api/profissionais /api/clientes /api/solicitacoes; do
             echo "GET $path"
             code=$(curl -sSL --retry 3 --retry-delay 2 --connect-timeout 7 --max-time 22 -o /tmp/response -w '%{http_code}' "$URL$path")
             test "$code" = "200" || { echo "Unexpected HTTP $code: $path"; exit 1; }
