@@ -28,14 +28,6 @@ jobs:
       - name: Unit tests
         working-directory: encontreumtecnico
         run: npm test
-      - name: Probe WordPress directory pagination (read-only)
-        working-directory: encontreumtecnico
-        continue-on-error: true
-        run: node scripts/probe-origin.mjs
-      - name: Probe origin sitemap metadata (read-only)
-        working-directory: encontreumtecnico
-        continue-on-error: true
-        run: node scripts/probe-sitemap.mjs
       - name: Read-only preview smoke (no fake registrations)
         env:
           URL: https://encontreumtecnico-migracao-git-feat-encontreumtec-211d15-msolus.vercel.app
@@ -59,7 +51,12 @@ jobs:
           assert d.get('adminConfigurado') is True, "Painel administrativo não configurado no deploy"
           print("Health OK - armazenamento e administração habilitados")
           o=json.load(open('/tmp/origem.json'))
-          print('Galeria Wordpress fonte:',o.get('origem'),'perfis retornados:',len(o.get('profissionais',[])))
+          profiles=o.get('profissionais',[])
+          print('Galeria WordPress:',o.get('origem'),'perfis públicos:',len(profiles),'fontes válidas:',o.get('fontesValidas'))
+          assert o.get('fontesValidas') == 2, "Falta um dos dois sitemaps de técnicos"
+          assert len(profiles) >= 300, "A galeria está incompleta (menos de 300 URLs públicas)"
+          assert len({x.get('url') for x in profiles}) == len(profiles), "Perfis duplicados encontrados"
+          assert all(x.get('url','').startswith('https://encontreumtecnico.com/tecnico/') for x in profiles), "URLs fora da origem oficial"
           PY
           code=$(curl -sSL --connect-timeout 7 --max-time 22 -X POST -H 'Content-Type: application/json' -d '{"nome":"x"}' -o /tmp/invalid -w '%{http_code}' "$URL/api/cadastro")
           test "$code" = "400" || { echo "Validation failure: expected HTTP 400, got $code"; exit 1; }
