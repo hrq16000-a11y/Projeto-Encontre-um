@@ -8,8 +8,8 @@ if(!process.env.BLOB_READ_WRITE_TOKEN || !process.env.ADMIN_ACCESS_TOKEN){
 } else {
  const runId=randomUUID();
  process.env.REGISTRATION_STORAGE_PREFIX='encontreumtecnico/diagnostics/registration/'+runId+'/';
- const [{default:register},{default:admin},{default:status},{default:technicians},core]=await Promise.all([
-  import('../api/cadastro.js'),import('../api/admin.js'),import('../api/status.js'),import('../api/tecnicos.js'),import('../lib/core.js')
+ const [{default:register},{default:admin},{default:status},{default:technicians},{default:profile},core]=await Promise.all([
+  import('../api/cadastro.js'),import('../api/admin.js'),import('../api/status.js'),import('../api/tecnicos.js'),import('../api/perfil.js'),import('../lib/core.js')
  ]);
  function response(){
   return {headers:{},code:200,payload:null,setHeader(name,value){this.headers[name]=value;return this;},status(code){this.code=code;return this;},json(payload){this.payload=payload;return this;}};
@@ -61,7 +61,35 @@ if(!process.env.BLOB_READ_WRITE_TOKEN || !process.env.ADMIN_ACCESS_TOKEN){
   assert.ok(found,'Cadastro aprovado não foi localizado na galeria');
   assert.equal(Object.hasOwn(found,'email'),false);
   assert.equal(Object.hasOwn(found,'chaveHash'),false);
-  console.log('Cadastro E2E: gravação → fila → aprovação → status → galeria: aprovado.');
+  const owner=response();
+  await profile({method:'POST',body:{id},headers:{authorization:'Bearer '+key}},owner);
+  assert.equal(owner.code,200);
+  assert.equal(owner.payload.perfil.email,body.email,'E-mail privado não foi preservado após aprovação');
+
+  const altered={...body,id,descricao:'Descrição atualizada pelo próprio profissional.'};
+  const editing=response();
+  await profile({method:'PUT',body:altered,headers:{authorization:'Bearer '+key}},editing);
+  assert.equal(editing.code,200);
+  assert.equal(editing.payload.estado,'pendente');
+  const stillPublic=await core.load('approved',id);
+  assert.equal(stillPublic.descricao,body.descricao,'Nova versão foi publicada antes da revisão');
+
+  const review=response();
+  await admin({method:'GET',headers:{authorization:validAuth}},review);
+  assert.ok(review.payload.pendentes.some(p=>p.id===id),'Edição não voltou para revisão');
+
+  const approveEdit=response();
+  await admin({method:'POST',headers:{authorization:validAuth},body:{id,acao:'aprovar'}},approveEdit);
+  assert.equal(approveEdit.code,200);
+  const updated=await core.load('approved',id);
+  assert.equal(updated.descricao,altered.descricao,'Edição não foi publicada após a nova aprovação');
+
+  const deleted=response();
+  await profile({method:'DELETE',body:{id},headers:{authorization:'Bearer '+key}},deleted);
+  assert.equal(deleted.code,200);
+  assert.equal(await core.load('approved',id),null);
+  assert.equal(await core.load('pending',id),null);
+  console.log('Cadastro E2E: cadastro → aprovação → galeria → edição → nova aprovação → exclusão: aprovado.');
  } finally {
   if(id){
    await core.remove('pending',id).catch(()=>{});
