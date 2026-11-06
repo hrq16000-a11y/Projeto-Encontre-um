@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node --test && node scripts/blob-smoke.mjs && node scripts/registration-smoke.mjs",
+    "build": "node --test && node scripts/blob-smoke.mjs && node scripts/registration-smoke.mjs && node scripts/portal-smoke.mjs",
     "test": "node --test"
   },
   "dependencies": {
