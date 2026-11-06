@@ -53,8 +53,12 @@ if(!process.env.BLOB_READ_WRITE_TOKEN || !process.env.ADMIN_ACCESS_TOKEN){
 
   const deletedJob=await call(own,'DELETE',{clienteId:clientId,id:jobId},secret);assert.equal(deletedJob.code,200);
   assert.equal(await store.read('solicitacoes','approved',jobId),null);
+  const extra=await call(requests,'POST',{...job,titulo:'Pedido temporário excluído junto com o cliente'},secret);
+  assert.equal(extra.code,201);
+  const extraJob=extra.body.id;
   const deletedClient=await call(client,'DELETE',{id:clientId},secret);assert.equal(deletedClient.code,200);
   assert.equal(await store.read('clientes','approved',clientId),null);
+  assert.equal(await store.read('solicitacoes','pending',extraJob),null,'Solicitações pendentes devem sair após a exclusão do cliente');
   console.log('Cliente + solicitação E2E: cadastro, autenticação, moderação, publicação, revisão e exclusão aprovados.');
  }finally{
   if(jobId){await store.erase('solicitacoes','pending',jobId).catch(()=>{});await store.erase('solicitacoes','approved',jobId).catch(()=>{});}
