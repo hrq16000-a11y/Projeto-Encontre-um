@@ -21,6 +21,18 @@ Estratégia: substituir sem alterar o WordPress nem DNS até reconciliação e h
 **Marcadores técnicos completos até aqui: 2/10 (20% do checklist, NÃO 20% dos dados migrados).**
 **Importação privada de usuários, registros e arquivos da origem: 0% confirmados.**
 
+## Evidências novas verificadas em 06/11/2026
+
+- Vercel deployment `dpl_FvqoRmTGXYkzDHrYDURsWiRhEj9w`, commit `1952baa`: READY com 14 testes unitários e teste funcional de armazenamento privado e de cadastro, aprovação, galeria, edição, nova revisão e exclusão — todos aprovados.
+- O teste de cadastro usa prefixo privado `encontreumtecnico/diagnostics/registration/<uuid>/` e exclui os objetos. Nenhum perfil de demonstração foi publicado.
+- O cliente consegue atualizar/excluir um cadastro **novo** usando protocolo e chave pessoal; não equivale a migração de contas, Google OAuth, validação de e-mail nem recuperação da chave.
+- O projeto passou a usar `get(...,{access:'private',useCache:false})` para registros transacionais após demonstrar falha de cache na segunda revisão. A etapa de revisão está validada.
+- Sitemap oficial da origem informa dois arquivos para técnicos: 200 e 184 URLs brutas. Após filtragem/deduplicação, API pública validada via GitHub Actions retornou **356 URLs únicas**, ambas as fontes disponíveis. Campos completos e mídia original dependem da migração do banco e arquivos.
+- Sitemap dos clientes informa 200 e 50 URLs brutas; ainda não importadas para o banco destino.
+- Nova galeria limita inicialmente a 48 cartões e oferece carregamento incremental para não renderizar centenas simultaneamente.
+- Falta persistência transacional escalável com usuários/roles, identidade e validação por e-mail para cumprir integralmente o marco 03.
+
+
 ## Referências da inspeção anterior
 
 - Em 29/10/2026 foram observados **362 resultados públicos de técnicos**, **249 resultados públicos de clientes**, e em inspeção autenticada posterior foi anotado **888 contas** no WordPress; esses números não substituem a reconciliação do banco de dados e podem ter mudado.

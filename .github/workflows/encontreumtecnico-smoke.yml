@@ -33,7 +33,7 @@ jobs:
           URL: https://encontreumtecnico-migracao-git-feat-encontreumtec-211d15-msolus.vercel.app
         run: |
           set -euo pipefail
-          for path in / /cadastro.html /galeria.html /admin.html /acompanhar.html /api/health /api/tecnicos /api/profissionais; do
+          for path in / /cadastro.html /galeria.html /admin.html /acompanhar.html /meu-perfil.html /api/health /api/tecnicos /api/profissionais; do
             echo "GET $path"
             code=$(curl -sSL --retry 3 --retry-delay 2 --connect-timeout 7 --max-time 22 -o /tmp/response -w '%{http_code}' "$URL$path")
             test "$code" = "200" || { echo "Unexpected HTTP $code: $path"; exit 1; }
@@ -62,4 +62,6 @@ jobs:
           test "$code" = "400" || { echo "Validation failure: expected HTTP 400, got $code"; exit 1; }
           status_code=$(curl -sSL --connect-timeout 7 --max-time 22 -X POST -H 'Content-Type: application/json' -d '{"id":"invalid"}' -o /tmp/status_invalid -w '%{http_code}' "$URL/api/status")
           test "$status_code" = "400" || { echo "Status API validation: expected 400, got $status_code"; exit 1; }
+          code=$(curl -sSL --connect-timeout 7 --max-time 22 -X POST -H 'Content-Type: application/json' -d '{"id":"invalid"}' -o /tmp/profile_invalid -w '%{http_code}' "$URL/api/perfil")
+          test "$code" = "401" || { echo "Unauthorized profile access: expected 401, got $code"; exit 1; }
           echo "Smoke checks passed, without writing a profile."
