@@ -26,6 +26,8 @@ export default function App() {
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Home />} />
+              {/* Preserva a home visual de referência em /home2 sem alterar /. */}
+              <Route path="/home2" element={<Home />} />
               <Route path="/search" element={<Search />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/business/:id" element={<BusinessDetail />} />
