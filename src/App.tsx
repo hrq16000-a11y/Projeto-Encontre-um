@@ -1,10 +1,13 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Home2Navbar from './home2/Home2Navbar';
+import Home2Footer from './home2/Home2Footer';
 
 // Lazy load pages for better performance
 const Home = lazy(() => import('./pages/Home'));
+const Home2 = lazy(() => import('./home2/Home2'));
 const Search = lazy(() => import('./pages/Search'));
 const Auth = lazy(() => import('./pages/Auth'));
 const BusinessDetail = lazy(() => import('./pages/BusinessDetail'));
@@ -17,15 +20,17 @@ const PageLoader = () => (
   </div>
 );
 
-export default function App() {
+function AppContent() {
+  const isHome2 = useLocation().pathname === '/home2';
   return (
-    <Router>
       <div className="min-h-screen bg-white font-sans text-zinc-900 selection:bg-emerald-100 selection:text-emerald-900">
-        <Navbar />
+        {isHome2 ? <Home2Navbar /> : <Navbar />}
         <main>
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Home />} />
+              {/* Preserva a home visual de referência em /home2 sem alterar /. */}
+              <Route path="/home2" element={<Home2 />} />
               <Route path="/search" element={<Search />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/business/:id" element={<BusinessDetail />} />
@@ -36,9 +41,12 @@ export default function App() {
             </Routes>
           </Suspense>
         </main>
-        <Footer />
+        {isHome2 ? <Home2Footer /> : <Footer />}
       </div>
-    </Router>
   );
+}
+
+export default function App() {
+  return <Router><AppContent /></Router>;
 }
 
