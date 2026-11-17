@@ -1,0 +1,54 @@
+<!doctype html><html lang="pt-BR"><head><link rel="icon" type="image/webp" href="/assets/favicon-original.webp"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Gerenciar cadastro | Encontre um Técnico</title><link rel="stylesheet" href="/assets/base.css"></head>
+<body><header><nav><a class="logo" href="/" aria-label="Encontre um Técnico"><img src="/assets/logo-original.webp" width="260" height="39" alt="Encontre um Técnico" decoding="async" style="max-width:230px;height:auto;object-fit:contain"/></a><div class="links"><a href="/cadastro">Novo cadastro</a><a href="/acompanhar">Consultar situação</a><a href="/galeria">Galeria</a></div></nav></header>
+<main><h1>Gerencie seu cadastro</h1><p class="muted">No ambiente de migração, use o protocolo e a chave privada recebidos no cadastro. Eles não são enviados por e-mail. A gestão definitiva terá login de usuário.</p>
+<section class="panel"><form id="access">
+<label>Protocolo do cadastro<input name="id" required maxlength="36" autocomplete="off" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label>
+<label>Chave pessoal<input name="key" type="password" required minlength="48" maxlength="48" autocomplete="off"></label>
+<button type="submit">Acessar meu perfil</button></form>
+<div id="alert" role="status" class="notice" aria-live="polite" hidden></div></section>
+<section id="editor" class="panel" hidden><h2>Atualizar informações</h2><p class="muted">Alterações em perfis publicados voltarão para aprovação; o conteúdo anterior permanece até a nova revisão.</p>
+<form id="edit">
+<div class="formgrid"><label>Nome ou nome profissional *<input name="nome" required minlength="3" maxlength="100"></label><label>Especialidade principal *<input name="especialidade" required minlength="3" maxlength="100"></label></div>
+<div class="formgrid"><label>Cidade de atendimento *<input name="cidade" required minlength="2" maxlength="90"></label><label>UF *<select name="uf" required><option value="">Selecione</option></select></label></div>
+<label>Apresentação profissional<textarea name="descricao" maxlength="900"></textarea></label>
+<div class="formgrid"><label>E-mail privado para a conta *<input name="email" type="email" required maxlength="180"></label><label>WhatsApp profissional (público, se informado)<input name="whatsapp" inputmode="tel" type="tel" maxlength="19"></label></div>
+<label class="check"><input name="aceite" type="checkbox" required>Confirmo que mantenho meu aceite das condições da plataforma.</label>
+<label class="check"><input name="autorizacaoPublica" type="checkbox" required>Autorizo a divulgação do nome profissional, especialidade, localização, apresentação e WhatsApp profissional informado.</label>
+<div class="actions"><button type="submit" id="save">Salvar alterações</button><button class="outline" type="button" id="delete">Excluir meu cadastro</button></div></form>
+</section></main><footer>Ambiente de migração · <a href="https://encontreumtecnico.com/">Portal original</a></footer>
+<script>
+const UFS='AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO'.split(' ');
+const uf=document.querySelector('[name="uf"]');for(const code of UFS){const o=document.createElement('option');o.value=code;o.textContent=code;uf.append(o);}
+let id='',secret='';
+const access=document.getElementById('access'),editor=document.getElementById('editor'),alertBox=document.getElementById('alert'),edit=document.getElementById('edit');
+function notice(message,good){alertBox.className='notice'+(good?' success':' error');alertBox.textContent=message;alertBox.hidden=false;}
+async function call(method,body){
+ const response=await fetch('/api/perfil',{method,headers:{'Content-Type':'application/json',Authorization:'Bearer '+secret},body:JSON.stringify({id,...body})});
+ let result;try{result=await response.json()}catch{throw Error('Resposta do servidor inválida.');}
+ if(!response.ok)throw Error(result.erro||'Não foi possível concluir esta ação.');
+ return result;
+}
+access.addEventListener('submit',async event=>{
+ event.preventDefault();id=access.elements.id.value.trim();secret=access.elements.key.value.trim();
+ try{
+ const result=await call('POST',{});
+ for(const key of ['nome','especialidade','cidade','uf','descricao','email','whatsapp'])edit.elements[key].value=result.perfil[key]||'';
+ access.elements.key.value='';
+ editor.hidden=false;notice('Perfil carregado. Situação: '+result.estado+'.',true);
+ }catch(error){editor.hidden=true;notice(error.message,false);secret='';}
+});
+edit.addEventListener('submit',async event=>{
+ event.preventDefault();
+ const button=document.getElementById('save');button.disabled=true;
+ const form=new FormData(edit),data=Object.fromEntries(form.entries());
+ data.aceite=edit.elements.aceite.checked;data.autorizacaoPublica=edit.elements.autorizacaoPublica.checked;
+ try{const result=await call('PUT',data);notice(result.mensagem,true);edit.elements.aceite.checked=false;edit.elements.autorizacaoPublica.checked=false;}
+ catch(error){notice(error.message,false);}finally{button.disabled=false;}
+});
+document.getElementById('delete').addEventListener('click',async()=>{
+ if(window.prompt('Para excluir seu cadastro e seus dados deste ambiente, digite EXCLUIR:')!=='EXCLUIR')return;
+ const button=document.getElementById('delete');button.disabled=true;
+ try{await call('DELETE',{});editor.hidden=true;access.hidden=false;access.reset();id='';secret='';notice('Cadastro excluído deste ambiente.',true);}
+ catch(error){notice(error.message,false);}finally{button.disabled=false;}
+});
+</script></body></html>

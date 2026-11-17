@@ -1,0 +1,32 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Administração | Encontre um Técnico</title><link rel="stylesheet" href="/assets/base.css"></head><body>
+<header><nav><a href="/" class="logo">Encontre um Técnico</a><div class="links"><a href="/galeria.html">Galeria</a><a href="/cadastro.html">Cadastro</a></div></nav></header>
+<main><h1>Revisão de cadastros</h1><p class="muted">Acesso reservado à administração. Novos técnicos só ficam públicos após aprovação.</p>
+<div class="panel"><form id="login"><label>Chave administrativa configurada na Vercel<input id="token" type="password" required minlength="24" autocomplete="off" placeholder="ADMIN_ACCESS_TOKEN"></label><button type="submit">Acessar fila</button></form><div role="status" id="notice" class="notice" hidden></div></div>
+<div id="pending" class="grid"></div></main><footer>Administração do ambiente de migração</footer>
+<script>
+let token='';const list=document.getElementById('pending'),notice=document.getElementById('notice');function alertStatus(message,error){notice.hidden=false;notice.className='notice'+(error?' error':'');notice.textContent=message;}
+async function load(){
+ const response=await fetch('/api/admin',{headers:{Authorization:'Bearer '+token}});const data=await response.json();if(!response.ok)throw Error(data.erro||'Acesso negado.');
+ list.replaceChildren();
+ if(!data.pendentes?.length){alertStatus('Sem cadastros pendentes neste lote.',false);return;}
+ alertStatus(data.pendentes.length+' cadastro(s) aguardando revisão.',false);
+ for(const record of data.pendentes){
+  const card=document.createElement('article');card.className='tech';
+  const title=document.createElement('h2');title.textContent=record.nome;
+  const meta=document.createElement('p');meta.textContent=[record.especialidade,record.cidade,record.uf,record.email,record.whatsapp].filter(Boolean).join(' · ');
+  const desc=document.createElement('p');desc.textContent=record.descricao||'Sem descrição.';
+  const actions=document.createElement('div');actions.className='actions';
+  for(const [key,label] of [['aprovar','Aprovar'],['rejeitar','Rejeitar']]){
+   const button=document.createElement('button');button.textContent=label;if(key==='rejeitar')button.className='outline';
+   button.addEventListener('click',async()=>{
+    if(!window.confirm('Confirma '+label.toLowerCase()+' o cadastro de '+record.nome+'?'))return;
+    button.disabled=true;
+    try{const r=await fetch('/api/admin',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({id:record.id,acao:key})});const result=await r.json();if(!r.ok)throw Error(result.erro||'Não foi possível concluir.');await load();}
+    catch(err){alertStatus(err.message,true);button.disabled=false;}
+   });actions.append(button);
+  }
+  card.append(title,meta,desc,actions);list.append(card);
+ }
+}
+document.getElementById('login').addEventListener('submit',async e=>{e.preventDefault();token=document.getElementById('token').value;document.getElementById('token').value='';try{await load();document.getElementById('login').hidden=true;}catch(err){token='';alertStatus(err.message,true);}});
+</script></body></html>

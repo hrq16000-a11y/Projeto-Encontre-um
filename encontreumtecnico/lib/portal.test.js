@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {validateCliente,validateSolicitacao,digest,verify,key,publicCliente,publicSolicitacao} from './portal.js';
+const cliente={nome:'Cliente Exemplo',setor:'Comércio local',cidade:'Curitiba',uf:'PR',email:'contato@example.com',whatsapp:'41999999999',aceite:true,autorizacaoPublica:true};
+const pedido={titulo:'Instalação de rede interna',especialidade:'Redes de computadores',descricao:'Instalar pontos de rede em escritório comercial.',cidade:'Curitiba',uf:'PR',aceite:true};
+test('cliente: dados e consentimento validados',()=>{const v=validateCliente(cliente);assert.equal(v.error,undefined);assert.equal(v.data.email,cliente.email)});
+test('cliente: sem consentimento é rejeitado',()=>assert.ok(validateCliente({...cliente,autorizacaoPublica:false}).error));
+test('cliente: dados incompletos são rejeitados',()=>assert.ok(validateCliente({...cliente,email:'a',cidade:'X'}).error));
+test('solicitação: dados válidos',()=>assert.equal(validateSolicitacao(pedido).data.titulo,pedido.titulo));
+test('solicitação: conteúdo curto recusado',()=>assert.ok(validateSolicitacao({...pedido,descricao:'Curto'}).error));
+test('segredos e e-mail nunca são públicos',()=>{
+ const c=publicCliente({...cliente,id:'id',chaveHash:'x'});
+ assert.equal('email' in c,false);assert.equal('whatsapp' in c,false);
+ const job=publicSolicitacao({...pedido,id:'id',clienteNome:cliente.nome,exibirContato:false,whatsapp:cliente.whatsapp});
+ assert.equal('whatsapp' in job,false);
+ const consented=publicSolicitacao({...pedido,id:'id',exibirContato:true,whatsapp:cliente.whatsapp});
+ assert.equal('whatsapp' in consented,false);
+});
+test('chave de dados é limitada a pastas legítimas',()=>{assert.throws(()=>key('solicitacoes','approved','../../evil'));assert.throws(()=>key('foo','pending','aaaa'));});
+test('digest de token determinístico',()=>assert.equal(digest('a'),digest('a')));
